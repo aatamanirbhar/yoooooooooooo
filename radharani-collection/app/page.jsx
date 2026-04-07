@@ -24,11 +24,36 @@ export default function RadharaniCollection() {
   useEffect(() => {
     fetchProducts();
 
-    const interval = setInterval(() => {
-      fetchProducts();
-    }, 3000);
+    const channel = supabase
+      .channel("inventory-live")
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "inventory",
+        },
+        (payload) => {
+          setProducts((prev) =>
+            prev.map((item) =>
+              item.id === payload.new.id
+                ? { ...item, stock: payload.new.stock }
+                : item
+            )
+          );
 
-    return () => clearInterval(interval);
+          setSelectedProduct((prev) =>
+            prev && prev.id === payload.new.id
+              ? { ...prev, stock: payload.new.stock }
+              : prev
+          );
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchProducts = async () => {
@@ -72,12 +97,12 @@ export default function RadharaniCollection() {
       return;
     }
 
-    const alreadyExists = cart.find(
+    const alreadyInCart = cart.some(
       (item) => item.id === product.id
     );
 
-    if (alreadyExists) {
-      showToast("Only one quantity allowed");
+    if (alreadyInCart) {
+      showToast("Already in cart");
       return;
     }
 
@@ -104,26 +129,35 @@ export default function RadharaniCollection() {
     setShowCart(true);
   };
 
-  const markItemsSoldOut = async () => {
-    for (const item of cart) {
-      const { error } = await supabase
-        .from("inventory")
-        .update({ stock: 0 })
-        .eq("id", item.id);
+  const updateStockToSoldOut = async () => {
+  console.log("CART:", cart);
 
-      if (error) {
-        console.log(error);
-        showToast("Failed to update stock");
-        return false;
-      }
-    }
+  const productId = cart?.[0]?.id;
 
-    await fetchProducts();
-    setCart([]);
-    setShowCart(false);
+  console.log("PRODUCT ID:", productId);
 
-    return true;
-  };
+  if (!productId) {
+    showToast("Cart empty / no product id");
+    return false;
+  }
+
+  const { data, error } = await supabase
+    .from("inventory")
+    .update({ stock: 0 })
+    .eq("id", productId)
+    .select();
+
+  console.log("UPDATE DATA:", data);
+  console.log("UPDATE ERROR:", error);
+
+  if (error) {
+    showToast(error.message);
+    return false;
+  }
+
+  showToast("Stock updated to 0");
+  return true;
+};
 
   const handleBuyNow = async () => {
     if (
@@ -135,16 +169,21 @@ export default function RadharaniCollection() {
       return;
     }
 
-    const success = await markItemsSoldOut();
+    const success = await updateStockToSoldOut();
 
     if (!success) return;
 
-    showToast("Redirecting to payment...");
+    setCart([]);
+    setShowCart(false);
+
+    showToast("Redirecting...");
 
     setTimeout(() => {
-      window.location.href =
-        "https://rzp.io/l/YOURPAYMENTLINK";
-    }, 1000);
+      window.open(
+        "https://rzp.io/l/YOURPAYMENTLINK",
+        "_blank"
+      );
+    }, 700);
   };
 
   const handleWhatsApp = async () => {
@@ -157,28 +196,34 @@ export default function RadharaniCollection() {
       return;
     }
 
-    const itemsText = cart
-      .map((item) => `${item.name} - ${item.price}`)
-      .join("%0A");
-
-    const success = await markItemsSoldOut();
+    const success = await updateStockToSoldOut();
 
     if (!success) return;
 
-    const message = `Hello, I want to order:%0A${itemsText}%0A%0AName: ${customerForm.name}%0APhone: ${customerForm.phone}%0AAddress: ${customerForm.address}`;
+    const itemText = `${cart[0].name} - ${cart[0].price}`;
 
-    window.location.href = `https://wa.me/919509295882?text=${message}`;
+    const message = `Hello, I want to order:%0A${itemText}%0A%0AName: ${customerForm.name}%0APhone: ${customerForm.phone}%0AAddress: ${customerForm.address}`;
+
+    setCart([]);
+    setShowCart(false);
+
+    setTimeout(() => {
+      window.open(
+        `https://wa.me/919509295882?text=${message}`,
+        "_blank"
+      );
+    }, 700);
   };
 
   return (
-    <div className="relative min-h-screen">
-      {/* Background video */}
+    <div className="relative min-h-screen overflow-hidden">
+      {/* Background Video */}
       <video
         autoPlay
         loop
         muted
         playsInline
-        className="fixed inset-0 w-full h-full object-cover opacity-20 -z-10"
+        className="fixed inset-0 w-full h-full object-cover opacity-20 -z-10 pointer-events-none"
       >
         <source
           src="/background-video.mp4"
@@ -188,7 +233,7 @@ export default function RadharaniCollection() {
 
       {/* Toast */}
       {toastMessage && (
-        <div className="fixed top-4 right-4 z-50 bg-black text-white px-4 py-2 rounded-xl shadow-lg">
+        <div className="fixed top-4 right-4 z-50 bg-black text-white px-4 py-2 rounded-xl">
           {toastMessage}
         </div>
       )}
@@ -202,8 +247,8 @@ export default function RadharaniCollection() {
           <Image
             src={zoomedImage}
             alt="Zoomed"
-            width={800}
-            height={1000}
+            width={900}
+            height={1200}
             className="max-h-[90vh] w-auto rounded-2xl"
           />
         </div>
@@ -217,7 +262,7 @@ export default function RadharaniCollection() {
 
         <div className="relative">
           {showEmptyMessage && (
-            <div className="absolute bottom-full mb-2 right-0 bg-black text-white px-4 py-2 rounded-xl whitespace-nowrap">
+            <div className="absolute bottom-full mb-2 right-0 bg-black text-white px-4 py-2 rounded-xl">
               Your cart is empty
             </div>
           )}
@@ -273,7 +318,7 @@ export default function RadharaniCollection() {
               {selectedProduct.price}
             </p>
 
-            <p className="mt-4 text-gray-700 leading-7">
+            <p className="mt-4 text-gray-700">
               {selectedProduct.description}
             </p>
 
@@ -295,7 +340,12 @@ export default function RadharaniCollection() {
               }
               className="mt-5 w-full bg-black text-white py-3 rounded-xl disabled:bg-gray-400"
             >
-              {selectedProduct.stock <= 0
+              {selectedProduct.stock <= 0 ||
+              cart.some(
+                (item) =>
+                  item.id ===
+                  selectedProduct.id
+              )
                 ? "Sold Out"
                 : "Add to Cart"}
             </button>
@@ -306,7 +356,7 @@ export default function RadharaniCollection() {
       {/* Cart Modal */}
       {showCart && (
         <div className="fixed inset-0 z-50 bg-black/50 flex justify-center items-center">
-          <div className="bg-white w-[95%] max-w-2xl rounded-3xl p-6 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white w-[95%] max-w-2xl rounded-3xl p-6">
             <div className="flex justify-between items-center mb-5">
               <h2 className="text-2xl font-bold">
                 Your Cart
@@ -326,9 +376,7 @@ export default function RadharaniCollection() {
                 className="flex justify-between border-b py-3"
               >
                 <div>
-                  <p className="font-semibold">
-                    {item.name}
-                  </p>
+                  <p>{item.name}</p>
                   <p>{item.price}</p>
                 </div>
 
@@ -369,7 +417,7 @@ export default function RadharaniCollection() {
               />
 
               <textarea
-                placeholder="Full Address"
+                placeholder="Address"
                 value={customerForm.address}
                 onChange={(e) =>
                   setCustomerForm({
