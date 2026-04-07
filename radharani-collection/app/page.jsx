@@ -24,6 +24,7 @@ export default function RadharaniCollection() {
   useEffect(() => {
     fetchProducts();
 
+
     const channel = supabase
       .channel("inventory-live")
       .on(
@@ -55,6 +56,32 @@ export default function RadharaniCollection() {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  useEffect(() => {
+  const handleBack = () => {
+    if (zoomedImage) {
+      setZoomedImage(null);
+      return;
+    }
+
+    if (showDetails) {
+      setShowDetails(false);
+      return;
+    }
+
+    if (showCart) {
+      setShowCart(false);
+      return;
+    }
+  };
+
+  window.addEventListener("popstate", handleBack);
+
+  return () => {
+    window.removeEventListener("popstate", handleBack);
+  };
+}, [zoomedImage, showDetails, showCart]);
+
 
   const fetchProducts = async () => {
     const { data, error } = await supabase
@@ -121,7 +148,8 @@ export default function RadharaniCollection() {
     return;
   }
 
-  setShowCart(true);
+  window.history.pushState({}, "");
+setShowCart(true);
 };
 
   const updateStockToSoldOut = async () => {
@@ -301,11 +329,10 @@ export default function RadharaniCollection() {
                   alt={selectedProduct.name}
                   width={300}
                   height={400}
-                  onClick={() =>
-                    setZoomedImage(
-                      getImageUrl(img)
-                    )
-                  }
+                 onClick={() => {
+  window.history.pushState({}, "");
+  setZoomedImage(getImageUrl(img));
+}}
                   className="w-full h-64 object-cover rounded-xl cursor-pointer"
                 />
               ))}
@@ -319,9 +346,13 @@ export default function RadharaniCollection() {
               {selectedProduct.description}
             </p>
 
-            <p className="mt-3 font-semibold">
-              Stock: {selectedProduct.stock}
-            </p>
+          <p className="mt-3 font-semibold">
+  Stock: {
+    cart.some((item) => item.id === selectedProduct.id)
+      ? 0
+      : selectedProduct.stock
+  }
+</p>
 
             <button
               onClick={() =>
@@ -456,10 +487,11 @@ export default function RadharaniCollection() {
           return (
             <div
               key={product.id}
-              onClick={() => {
-                setSelectedProduct(product);
-                setShowDetails(true);
-              }}
+           onClick={() => {
+  window.history.pushState({}, "");
+  setSelectedProduct(product);
+  setShowDetails(true);
+}}
               className="relative bg-white rounded-3xl overflow-hidden shadow-xl cursor-pointer"
             >
               {soldOut && (
