@@ -208,56 +208,62 @@ const handleBuyNow = async () => {
     return;
   }
 
-  if (cart.length === 0) {
-    showToast("Your cart is empty");
+  const { data, error } = await supabase
+    .from("orders")
+    .insert([
+      {
+        customer_name: customerForm.name,
+        phone: customerForm.phone,
+        address: customerForm.address,
+        product_name: cart[0].name,
+        amount: parseInt(
+          cart[0].price.replace("₹", "")
+        ),
+        payment_status: "pending",
+      },
+    ])
+    .select();
+
+  if (error) {
+    alert(error.message);
     return;
   }
 
-  const loaded = await loadRazorpayScript();
-
-  if (!loaded) {
-    showToast("Razorpay failed to load");
-    return;
-  }
-
-  const amount =
-    parseInt(cart[0].price.replace("₹", "")) * 100;
-
-  const options = {
-    key: "rzp_live_Sah1IEXfM3UJCg",
-    amount,
-    currency: "INR",
-    name: "Radharani Collection",
-    description: cart[0].name,
-
-    prefill: {
-      name: customerForm.name,
-      contact: customerForm.phone,
-    },
-
-    notes: {
-      address: customerForm.address,
-    },
-
-    theme: {
-      color: "#16a34a",
-    },
-
-    handler: async function () {
-      const success =
-        await updateStockToSoldOut();
-
-      if (!success) return;
-
-      setCart([]);
-      setShowCart(false);
-
-      showToast("Payment successful");
-    },
-  };
+  const orderId = data[0].id;
 
   const paymentObject =
-    new window.Razorpay(options);
+    new window.Razorpay({
+      key: "rzp_live_Sah1IEXfM3UJCg",
+      amount:
+        parseInt(
+          cart[0].price.replace("₹", "")
+        ) * 100,
+      currency: "INR",
+      name: "Radharani Collection",
+
+      handler: async function (
+        response
+      ) {
+        await supabase
+          .from("orders")
+          .update({
+            payment_status:
+              "successful",
+            payment_id:
+              response.razorpay_payment_id,
+          })
+          .eq("id", orderId);
+
+        await updateStockToSoldOut();
+
+        setCart([]);
+        setShowCart(false);
+
+        showToast(
+          "Payment successful"
+        );
+      },
+    });
 
   paymentObject.open();
 };
@@ -579,7 +585,9 @@ const handleBuyNow = async () => {
             </div>
           );
         })}
+         <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
       </div>
+     
     </div>
   );
 }
