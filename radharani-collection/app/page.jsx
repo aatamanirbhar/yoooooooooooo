@@ -7,11 +7,13 @@ import { supabase } from "../lib/supabase";
 export default function RadharaniCollection() {
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
+  const [toastMessage, setToastMessage] = useState("");
   const [showCart, setShowCart] = useState(false);
+  const [showEmptyMessage, setShowEmptyMessage] = useState(false);
+
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
-  const [showEmptyMessage, setShowEmptyMessage] = useState(false);
+  const [zoomedImage, setZoomedImage] = useState(null);
 
   const [customerForm, setCustomerForm] = useState({
     name: "",
@@ -21,13 +23,13 @@ export default function RadharaniCollection() {
 
   useEffect(() => {
     fetchProducts();
-  }, []);
 
-  const getImageUrl = (path) => {
-    return supabase.storage
-      .from("product-images")
-      .getPublicUrl(path).data.publicUrl;
-  };
+    const interval = setInterval(() => {
+      fetchProducts();
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const fetchProducts = async () => {
     const { data, error } = await supabase
@@ -36,7 +38,7 @@ export default function RadharaniCollection() {
       .order("id");
 
     if (error) {
-      console.log(error);
+      console.log("SUPABASE ERROR:", error);
       return;
     }
 
@@ -45,20 +47,23 @@ export default function RadharaniCollection() {
       name: item.name,
       price: `₹${item.price}`,
       stock: item.stock,
-      description: item.description,
+      description:
+        item.description || "No description available",
       images: item.images || [],
     }));
 
     setProducts(formatted);
   };
 
-  const showToast = (msg) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(""), 1500);
+  const getImageUrl = (path) => {
+    return supabase.storage
+      .from("product-images")
+      .getPublicUrl(path).data.publicUrl;
   };
 
-  const isInCart = (id) => {
-    return cart.some((item) => item.id === id);
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(""), 1200);
   };
 
   const addToCart = (product) => {
@@ -67,44 +72,57 @@ export default function RadharaniCollection() {
       return;
     }
 
-    if (isInCart(product.id)) {
-      showToast("Already in cart");
+    const alreadyExists = cart.find(
+      (item) => item.id === product.id
+    );
+
+    if (alreadyExists) {
+      showToast("Only one quantity allowed");
       return;
     }
 
-    setCart((prev) => [...prev, product]);
+    setCart([product]);
     showToast("Added to cart");
   };
 
-  const removeFromCart = (indexToRemove) => {
-    setCart((prev) =>
-      prev.filter((_, index) => index !== indexToRemove)
-    );
+  const removeFromCart = () => {
+    setCart([]);
+    showToast("Removed from cart");
   };
 
   const handleCartClick = () => {
     if (cart.length === 0) {
       setShowEmptyMessage(true);
+
       setTimeout(() => {
         setShowEmptyMessage(false);
       }, 1500);
+
       return;
     }
 
     setShowCart(true);
   };
 
-  const markSoldOut = async () => {
+  const markItemsSoldOut = async () => {
     for (const item of cart) {
-      await supabase
+      const { error } = await supabase
         .from("inventory")
         .update({ stock: 0 })
         .eq("id", item.id);
+
+      if (error) {
+        console.log(error);
+        showToast("Failed to update stock");
+        return false;
+      }
     }
 
-    fetchProducts();
+    await fetchProducts();
     setCart([]);
     setShowCart(false);
+
+    return true;
   };
 
   const handleBuyNow = async () => {
@@ -113,14 +131,20 @@ export default function RadharaniCollection() {
       !customerForm.phone ||
       !customerForm.address
     ) {
-      showToast("Fill all details");
+      showToast("Please fill all details");
       return;
     }
 
-    await markSoldOut();
+    const success = await markItemsSoldOut();
 
-    window.location.href =
-      "https://rzp.io/l/YOURPAYMENTLINK";
+    if (!success) return;
+
+    showToast("Redirecting to payment...");
+
+    setTimeout(() => {
+      window.location.href =
+        "https://rzp.io/l/YOURPAYMENTLINK";
+    }, 1000);
   };
 
   const handleWhatsApp = async () => {
@@ -129,37 +153,71 @@ export default function RadharaniCollection() {
       !customerForm.phone ||
       !customerForm.address
     ) {
-      showToast("Fill all details");
+      showToast("Please fill all details");
       return;
     }
 
-    const items = cart
+    const itemsText = cart
       .map((item) => `${item.name} - ${item.price}`)
       .join("%0A");
 
-    await markSoldOut();
+    const success = await markItemsSoldOut();
 
-    const message = `Hello, I want to order:%0A${items}%0A%0AName: ${customerForm.name}%0APhone: ${customerForm.phone}%0AAddress: ${customerForm.address}`;
+    if (!success) return;
 
-    window.location.href = `https://wa.me/919509295882?text=${message}`;
+    const message = `Hello, I want to order:%0A${itemsText}%0A%0AName: ${customerForm.name}%0APhone: ${customerForm.phone}%0AAddress: ${customerForm.address}`;
+
+    window.location.href = `https://wa.me/91YOURNUMBER?text=${message}`;
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="relative min-h-screen">
+      {/* Background video */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="fixed inset-0 w-full h-full object-cover opacity-20 -z-10"
+      >
+        <source
+          src="/background-video.mp4"
+          type="video/mp4"
+        />
+      </video>
+
+      {/* Toast */}
       {toastMessage && (
-        <div className="fixed top-4 right-4 z-50 bg-black text-white px-4 py-2 rounded-xl">
+        <div className="fixed top-4 right-4 z-50 bg-black text-white px-4 py-2 rounded-xl shadow-lg">
           {toastMessage}
         </div>
       )}
 
-      <div className="flex justify-between items-center p-6">
-        <h1 className="text-4xl font-bold">
+      {/* Zoom Modal */}
+      {zoomedImage && (
+        <div
+          className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center"
+          onClick={() => setZoomedImage(null)}
+        >
+          <Image
+            src={zoomedImage}
+            alt="Zoomed"
+            width={800}
+            height={1000}
+            className="max-h-[90vh] w-auto rounded-2xl"
+          />
+        </div>
+      )}
+
+      {/* Header */}
+      <div className="relative z-50 flex justify-between items-center p-6">
+        <h1 className="text-4xl font-bold text-black">
           Radharani Collection
         </h1>
 
         <div className="relative">
           {showEmptyMessage && (
-            <div className="absolute bottom-full mb-2 right-0 bg-black text-white px-4 py-2 rounded-xl">
+            <div className="absolute bottom-full mb-2 right-0 bg-black text-white px-4 py-2 rounded-xl whitespace-nowrap">
               Your cart is empty
             </div>
           )}
@@ -176,11 +234,11 @@ export default function RadharaniCollection() {
         </div>
       </div>
 
-      {/* Product details modal */}
+      {/* Details Modal */}
       {showDetails && selectedProduct && (
         <div className="fixed inset-0 z-50 bg-black/50 flex justify-center items-center">
           <div className="bg-white w-[95%] max-w-3xl rounded-3xl p-6 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between mb-4">
+            <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold">
                 {selectedProduct.name}
               </h2>
@@ -201,20 +259,25 @@ export default function RadharaniCollection() {
                   alt={selectedProduct.name}
                   width={300}
                   height={400}
-                  className="w-full h-64 object-cover rounded-xl"
+                  onClick={() =>
+                    setZoomedImage(
+                      getImageUrl(img)
+                    )
+                  }
+                  className="w-full h-64 object-cover rounded-xl cursor-pointer"
                 />
               ))}
             </div>
 
-            <p className="mt-4 text-xl font-bold">
+            <p className="text-xl font-bold mt-5">
               {selectedProduct.price}
             </p>
 
-            <p className="mt-2">
+            <p className="mt-4 text-gray-700 leading-7">
               {selectedProduct.description}
             </p>
 
-            <p className="mt-2 font-semibold">
+            <p className="mt-3 font-semibold">
               Stock: {selectedProduct.stock}
             </p>
 
@@ -222,8 +285,15 @@ export default function RadharaniCollection() {
               onClick={() =>
                 addToCart(selectedProduct)
               }
-              disabled={selectedProduct.stock <= 0}
-              className="mt-4 w-full bg-black text-white py-3 rounded-xl disabled:bg-gray-400"
+              disabled={
+                selectedProduct.stock <= 0 ||
+                cart.some(
+                  (item) =>
+                    item.id ===
+                    selectedProduct.id
+                )
+              }
+              className="mt-5 w-full bg-black text-white py-3 rounded-xl disabled:bg-gray-400"
             >
               {selectedProduct.stock <= 0
                 ? "Sold Out"
@@ -233,11 +303,11 @@ export default function RadharaniCollection() {
         </div>
       )}
 
-      {/* Cart modal */}
+      {/* Cart Modal */}
       {showCart && (
         <div className="fixed inset-0 z-50 bg-black/50 flex justify-center items-center">
-          <div className="bg-white w-[95%] max-w-2xl rounded-3xl p-6">
-            <div className="flex justify-between mb-4">
+          <div className="bg-white w-[95%] max-w-2xl rounded-3xl p-6 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-5">
               <h2 className="text-2xl font-bold">
                 Your Cart
               </h2>
@@ -250,20 +320,20 @@ export default function RadharaniCollection() {
               </button>
             </div>
 
-            {cart.map((item, index) => (
+            {cart.map((item) => (
               <div
-                key={index}
+                key={item.id}
                 className="flex justify-between border-b py-3"
               >
                 <div>
-                  <p>{item.name}</p>
+                  <p className="font-semibold">
+                    {item.name}
+                  </p>
                   <p>{item.price}</p>
                 </div>
 
                 <button
-                  onClick={() =>
-                    removeFromCart(index)
-                  }
+                  onClick={removeFromCart}
                   className="bg-red-500 text-white px-3 py-2 rounded-xl"
                 >
                   Delete
@@ -271,44 +341,49 @@ export default function RadharaniCollection() {
               </div>
             ))}
 
-            <input
-              type="text"
-              placeholder="Full Name"
-              className="w-full border p-3 rounded-xl mt-4"
-              onChange={(e) =>
-                setCustomerForm({
-                  ...customerForm,
-                  name: e.target.value,
-                })
-              }
-            />
+            <div className="mt-6 space-y-4">
+              <input
+                type="text"
+                placeholder="Full Name"
+                value={customerForm.name}
+                onChange={(e) =>
+                  setCustomerForm({
+                    ...customerForm,
+                    name: e.target.value,
+                  })
+                }
+                className="w-full border p-3 rounded-xl"
+              />
 
-            <input
-              type="text"
-              placeholder="Phone"
-              className="w-full border p-3 rounded-xl mt-3"
-              onChange={(e) =>
-                setCustomerForm({
-                  ...customerForm,
-                  phone: e.target.value,
-                })
-              }
-            />
+              <input
+                type="text"
+                placeholder="Phone Number"
+                value={customerForm.phone}
+                onChange={(e) =>
+                  setCustomerForm({
+                    ...customerForm,
+                    phone: e.target.value,
+                  })
+                }
+                className="w-full border p-3 rounded-xl"
+              />
 
-            <textarea
-              placeholder="Address"
-              className="w-full border p-3 rounded-xl mt-3"
-              onChange={(e) =>
-                setCustomerForm({
-                  ...customerForm,
-                  address: e.target.value,
-                })
-              }
-            />
+              <textarea
+                placeholder="Full Address"
+                value={customerForm.address}
+                onChange={(e) =>
+                  setCustomerForm({
+                    ...customerForm,
+                    address: e.target.value,
+                  })
+                }
+                className="w-full border p-3 rounded-xl"
+              />
+            </div>
 
             <button
               onClick={handleBuyNow}
-              className="mt-4 w-full bg-blue-600 text-white py-3 rounded-xl"
+              className="mt-5 w-full bg-blue-600 text-white py-3 rounded-xl"
             >
               Buy Now
             </button>
@@ -323,46 +398,57 @@ export default function RadharaniCollection() {
         </div>
       )}
 
-      {/* Product cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 p-6">
-        {products.map((product) => (
-          <div
-            key={product.id}
-            onClick={() => {
-              setSelectedProduct(product);
-              setShowDetails(true);
-            }}
-            className="cursor-pointer bg-white rounded-3xl shadow-xl overflow-hidden"
-          >
-            <Image
-              src={getImageUrl(product.images[0])}
-              alt={product.name}
-              width={400}
-              height={500}
-              className="w-full h-72 object-cover"
-            />
+      {/* Product Cards */}
+      <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 p-6">
+        {products.map((product) => {
+          const soldOut =
+            product.stock <= 0 ||
+            cart.some(
+              (item) =>
+                item.id === product.id
+            );
 
-            <div className="p-5">
-              <h2 className="text-xl font-semibold">
-                {product.name}
-              </h2>
-
-              <p className="font-bold mt-2">
-                {product.price}
-              </p>
-
-              <p className="mt-1">
-                Stock: {product.stock}
-              </p>
-
-              {product.stock <= 0 && (
-                <p className="text-red-600 font-bold mt-2">
-                  SOLD OUT
-                </p>
+          return (
+            <div
+              key={product.id}
+              onClick={() => {
+                setSelectedProduct(product);
+                setShowDetails(true);
+              }}
+              className="relative bg-white rounded-3xl overflow-hidden shadow-xl cursor-pointer"
+            >
+              {soldOut && (
+                <div className="absolute inset-0 z-20 bg-black/50 flex items-center justify-center">
+                  <div className="bg-white px-4 py-2 rounded-xl font-bold">
+                    SOLD OUT
+                  </div>
+                </div>
               )}
+
+              {product.images?.[0] && (
+                <Image
+                  src={getImageUrl(
+                    product.images[0]
+                  )}
+                  alt={product.name}
+                  width={400}
+                  height={500}
+                  className="w-full h-72 object-cover"
+                />
+              )}
+
+              <div className="p-5">
+                <h2 className="text-xl font-semibold">
+                  {product.name}
+                </h2>
+
+                <p className="text-lg font-bold mt-2">
+                  {product.price}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
