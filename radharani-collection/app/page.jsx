@@ -167,7 +167,7 @@ export default function RadharaniCollection() {
 
     const message = `Hello, I want to order:%0A${itemsText}%0A%0AName: ${customerForm.name}%0APhone: ${customerForm.phone}%0AAddress: ${customerForm.address}`;
 
-    window.location.href = `https://wa.me/91YOURNUMBER?text=${message}`;
+    window.location.href = `https://wa.me/919509295882?text=${message}`;
   };
 
   return (
