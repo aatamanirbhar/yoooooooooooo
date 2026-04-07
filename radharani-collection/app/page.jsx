@@ -101,6 +101,7 @@ export default function RadharaniCollection() {
       stock: item.stock,
       description:
         item.description || "No description available",
+        product_code: item.product_code,
       images: item.images || [],
     }));
 
@@ -398,11 +399,15 @@ const handleBuyNow = async () => {
             </div>
 
             <p className="text-xl font-bold mt-5">
-              {selectedProduct.price}
+              Price: {selectedProduct.price}
             </p>
 
             <p className="mt-4 text-gray-700">
-              {selectedProduct.description}
+              Description: {selectedProduct.description}
+            </p>
+
+             <p className="mt-4 text-gray-700">
+              Product Code: {selectedProduct.product_code}
             </p>
 
           <p className="mt-3 font-semibold">
