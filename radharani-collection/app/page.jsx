@@ -182,32 +182,85 @@ setShowCart(true);
   return true;
 };
 
-  const handleBuyNow = async () => {
-    if (
-      !customerForm.name ||
-      !customerForm.phone ||
-      !customerForm.address
-    ) {
-      showToast("Please fill all details");
+  const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    if (window.Razorpay) {
+      resolve(true);
       return;
     }
 
-    const success = await updateStockToSoldOut();
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
 
-    if (!success) return;
+    document.body.appendChild(script);
+  });
+};
 
-    setCart([]);
-    setShowCart(false);
+const handleBuyNow = async () => {
+  if (
+    !customerForm.name ||
+    !customerForm.phone ||
+    !customerForm.address
+  ) {
+    showToast("Please fill all details");
+    return;
+  }
 
-    showToast("Redirecting...");
+  if (cart.length === 0) {
+    showToast("Your cart is empty");
+    return;
+  }
 
-    setTimeout(() => {
-      window.open(
-        "https://rzp.io/l/YOURPAYMENTLINK",
-        "_blank"
-      );
-    }, 700);
+  const loaded = await loadRazorpayScript();
+
+  if (!loaded) {
+    showToast("Razorpay failed to load");
+    return;
+  }
+
+  const amount =
+    parseInt(cart[0].price.replace("₹", "")) * 100;
+
+  const options = {
+    key: "rzp_live_Sah1IEXfM3UJCg",
+    amount,
+    currency: "INR",
+    name: "Radharani Collection",
+    description: cart[0].name,
+
+    prefill: {
+      name: customerForm.name,
+      contact: customerForm.phone,
+    },
+
+    notes: {
+      address: customerForm.address,
+    },
+
+    theme: {
+      color: "#16a34a",
+    },
+
+    handler: async function () {
+      const success =
+        await updateStockToSoldOut();
+
+      if (!success) return;
+
+      setCart([]);
+      setShowCart(false);
+
+      showToast("Payment successful");
+    },
   };
+
+  const paymentObject =
+    new window.Razorpay(options);
+
+  paymentObject.open();
+};
 
   const handleWhatsApp = async () => {
     if (
