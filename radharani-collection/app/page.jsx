@@ -115,19 +115,14 @@ export default function RadharaniCollection() {
     showToast("Removed from cart");
   };
 
-  const handleCartClick = () => {
-    if (cart.length === 0) {
-      setShowEmptyMessage(true);
+ const handleCartClick = () => {
+  if (cart.length === 0) {
+    showToast("Your cart is empty");
+    return;
+  }
 
-      setTimeout(() => {
-        setShowEmptyMessage(false);
-      }, 1500);
-
-      return;
-    }
-
-    setShowCart(true);
-  };
+  setShowCart(true);
+};
 
   const updateStockToSoldOut = async () => {
   console.log("CART:", cart);
@@ -232,11 +227,13 @@ export default function RadharaniCollection() {
       </video>
 
       {/* Toast */}
-      {toastMessage && (
-        <div className="fixed top-4 right-4 z-50 bg-black text-white px-4 py-2 rounded-xl">
-          {toastMessage}
-        </div>
-      )}
+     {toastMessage && (
+  <div className="fixed inset-0 z-[200] flex items-center justify-center pointer-events-none">
+    <div className="bg-black/90 text-white px-6 py-3 rounded-2xl shadow-2xl text-base font-medium animate-pulse">
+      {toastMessage}
+    </div>
+  </div>
+)}
 
       {/* Zoom Modal */}
       {zoomedImage && (
