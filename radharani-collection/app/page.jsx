@@ -243,27 +243,36 @@ const handleBuyNow = async () => {
       name: "Radharani Collection",
 
       handler: async function (
-        response
-      ) {
-        await supabase
-          .from("orders")
-          .update({
-            payment_status:
-              "successful",
-            payment_id:
-              response.razorpay_payment_id,
-          })
-          .eq("id", orderId);
+  response
+) {
+  await supabase
+    .from("orders")
+    .update({
+      payment_status:
+        "successful",
+      payment_id:
+        response.razorpay_payment_id,
+    })
+    .eq("id", orderId);
 
-        await updateStockToSoldOut();
+  await updateStockToSoldOut();
 
-        setCart([]);
-        setShowCart(false);
+  const message = `New Order%0A%0AProduct: ${cart[0].name}%0APrice: ${cart[0].price}%0A%0AName: ${customerForm.name}%0APhone: ${customerForm.phone}%0AAddress: ${customerForm.address}%0APayment ID: ${response.razorpay_payment_id}`;
 
-        showToast(
-          "Payment successful"
-        );
-      },
+  setCart([]);
+  setShowCart(false);
+
+  showToast(
+    "Payment successful"
+  );
+
+  setTimeout(() => {
+    window.open(
+      `https://wa.me/919509295882?text=${message}`,
+      "_blank"
+    );
+  }, 500);
+},
     });
 
   paymentObject.open();
@@ -342,7 +351,7 @@ const handleBuyNow = async () => {
       {/* Header */}
       <div className="relative z-50 flex justify-between items-center p-6">
         <h1 className="text-4xl font-bold text-black">
-          Radharani Collection
+          राधारानी Collection
         </h1>
 
         <div className="relative">
