@@ -120,28 +120,60 @@ export default function RadharaniCollection() {
   };
 
   const addToCart = (product) => {
-    if (product.stock <= 0) {
-      showToast("Sold out");
-      return;
-    }
+  if (product.stock <= 0) {
+    showToast("Sold out");
+    return;
+  }
 
-    const alreadyInCart = cart.some(
+  setCart((prev) => {
+    const existing = prev.find(
       (item) => item.id === product.id
     );
 
-    if (alreadyInCart) {
-      showToast("Already in cart");
-      return;
+    if (existing) {
+      return prev.map((item) =>
+        item.id === product.id
+          ? {
+              ...item,
+              quantity:
+                item.quantity + 1,
+            }
+          : item
+      );
     }
 
-    setCart([product]);
-    showToast("Added to cart");
-  };
+    return [
+      ...prev,
+      {
+        ...product,
+        quantity: 1,
+      },
+    ];
+  });
 
-  const removeFromCart = () => {
-    setCart([]);
-    showToast("Removed from cart");
-  };
+  showToast("Added to cart");
+};
+
+const removeFromCart = (id) => {
+  setCart((prev) =>
+    prev
+      .map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              quantity:
+                item.quantity - 1,
+            }
+          : item
+      )
+      .filter(
+        (item) =>
+          item.quantity > 0
+      )
+  );
+
+  showToast("Removed from cart");
+};
 
  const handleCartClick = () => {
   if (cart.length === 0) {
@@ -199,85 +231,151 @@ setShowCart(true);
   });
 };
 
+
+const updateStockAfterPayment =
+  async () => {
+    for (const item of cart) {
+      const product =
+        products.find(
+          (p) =>
+            p.id === item.id
+        );
+
+      if (!product) continue;
+
+      const currentStock =
+        Number(product.stock) || 0;
+
+      const newStock =
+        Math.max(
+          currentStock -
+            item.quantity,
+          0
+        );
+
+      await supabase
+        .from("inventory")
+        .update({
+          stock: newStock,
+        })
+        .eq("id", item.id);
+    }
+
+    await fetchProducts();
+  };
+
+
+  const getCartTotal = () => {
+  return cart.reduce(
+    (sum, item) =>
+      sum +
+      parseInt(
+        item.price.replace("₹", "")
+      ) * item.quantity,
+    0
+  );
+};
+
+
 const handleBuyNow = async () => {
   if (
     !customerForm.name ||
     !customerForm.phone ||
     !customerForm.address
   ) {
-    showToast("Please fill all details");
+    showToast(
+      "Please fill all details"
+    );
     return;
   }
 
-  const { data, error } = await supabase
-    .from("orders")
-    .insert([
-      {
-        customer_name: customerForm.name,
-        phone: customerForm.phone,
-        address: customerForm.address,
-        product_name: cart[0].name,
-        amount: parseInt(
-          cart[0].price.replace("₹", "")
-        ),
-        payment_status: "pending",
-      },
-    ])
-    .select();
+  const totalAmount =
+    getCartTotal();
+
+  const { data, error } =
+    await supabase
+      .from("orders")
+      .insert([
+        {
+          customer_name:
+            customerForm.name,
+          phone:
+            customerForm.phone,
+          address:
+            customerForm.address,
+          product_name: cart
+            .map(
+              (item) =>
+                `${item.name} x${item.quantity}`
+            )
+            .join(", "),
+          amount:
+            totalAmount,
+          payment_status:
+            "pending",
+        },
+      ])
+      .select();
 
   if (error) {
     alert(error.message);
     return;
   }
 
-  const orderId = data[0].id;
+  const orderId =
+    data[0].id;
 
   const paymentObject =
     new window.Razorpay({
-      key: "rzp_live_Sah1IEXfM3UJCg",
+      key: "rzp_test_SayxRYG9e6D0Gv",
       amount:
-        parseInt(
-          cart[0].price.replace("₹", "")
-        ) * 100,
+        totalAmount * 100,
       currency: "INR",
-      name: "Radharani Collection",
+      name:
+        "Radharani Collection",
 
       handler: async function (
-  response
-) {
-  await supabase
-    .from("orders")
-    .update({
-      payment_status:
-        "successful",
-      payment_id:
-        response.razorpay_payment_id,
-    })
-    .eq("id", orderId);
+        response
+      ) {
+        await supabase
+          .from("orders")
+          .update({
+            payment_status:
+              "successful",
+            payment_id:
+              response.razorpay_payment_id,
+          })
+          .eq("id", orderId);
 
-  await updateStockToSoldOut();
+        await updateStockAfterPayment();
 
-  const message = `New Order%0A%0AProduct: ${cart[0].name}%0APrice: ${cart[0].price}%0A%0AName: ${customerForm.name}%0APhone: ${customerForm.phone}%0AAddress: ${customerForm.address}%0APayment ID: ${response.razorpay_payment_id}`;
+        const message = `New Order%0A%0A${cart
+          .map(
+            (item) =>
+              `${item.name} x${item.quantity}`
+          )
+          .join(
+            "%0A"
+          )}%0A%0AName: ${
+          customerForm.name
+        }%0APhone: ${
+          customerForm.phone
+        }%0AAddress: ${
+          customerForm.address
+        }`;
 
-  setCart([]);
-  setShowCart(false);
+        setCart([]);
+        setShowCart(false);
 
-  showToast(
-    "Payment successful"
-  );
-
-  setTimeout(() => {
-    window.open(
-      `https://wa.me/919509295882?text=${message}`,
-      "_blank"
-    );
-  }, 500);
-},
+        window.open(
+          `https://wa.me/919509295882?text=${message}`,
+          "_blank"
+        );
+      },
     });
 
   paymentObject.open();
 };
-
   const handleWhatsApp = async () => {
     if (
       !customerForm.name ||
@@ -419,37 +517,39 @@ const handleBuyNow = async () => {
               Product Code: {selectedProduct.product_code}
             </p>
 
-          <p className="mt-3 font-semibold">
+<p className="mt-3 font-semibold">
   Stock: {
-    cart.some((item) => item.id === selectedProduct.id)
-      ? 0
-      : selectedProduct.stock
+    selectedProduct.stock -
+    (cart.find(
+      (item) =>
+        item.id === selectedProduct.id
+    )?.quantity || 0)
   }
 </p>
 
             <button
-              onClick={() =>
-                addToCart(selectedProduct)
-              }
-              disabled={
-                selectedProduct.stock <= 0 ||
-                cart.some(
-                  (item) =>
-                    item.id ===
-                    selectedProduct.id
-                )
-              }
-              className="mt-5 w-full bg-black text-white py-3 rounded-xl disabled:bg-gray-400"
-            >
-              {selectedProduct.stock <= 0 ||
-              cart.some(
-                (item) =>
-                  item.id ===
-                  selectedProduct.id
-              )
-                ? "Sold Out"
-                : "Add to Cart"}
-            </button>
+  onClick={() =>
+    addToCart(selectedProduct)
+  }
+  disabled={
+    selectedProduct.stock -
+      (cart.find(
+        (item) =>
+          item.id ===
+          selectedProduct.id
+      )?.quantity || 0) <= 0
+  }
+  className="mt-5 w-full bg-black text-white py-3 rounded-xl disabled:bg-gray-400"
+>
+  {selectedProduct.stock -
+    (cart.find(
+      (item) =>
+        item.id ===
+        selectedProduct.id
+    )?.quantity || 0) <= 0
+    ? "Sold Out"
+    : "Add to Cart"}
+</button>
           </div>
         </div>
       )}
@@ -476,16 +576,22 @@ const handleBuyNow = async () => {
                 key={item.id}
                 className="flex justify-between border-b py-3"
               >
-                <div>
-                  <p>{item.name}</p>
-                  <p>{item.price}</p>
-                </div>
+               <div>
+  <p>{item.name}</p>
+  <p>Qty: {item.quantity}</p>
+  <p>
+    ₹
+    {parseInt(
+      item.price.replace("₹", "")
+    ) * item.quantity}
+  </p>
+</div>
 
                 <button
-                  onClick={removeFromCart}
+                  onClick={()=>removeFromCart(item.id)}
                   className="bg-red-500 text-white px-3 py-2 rounded-xl"
                 >
-                  Delete
+                  -
                 </button>
               </div>
             ))}
@@ -550,12 +656,14 @@ const handleBuyNow = async () => {
       {/* Product Cards */}
       <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 p-6">
         {products.map((product) => {
-          const soldOut =
-            product.stock <= 0 ||
-            cart.some(
-              (item) =>
-                item.id === product.id
-            );
+        const cartQty =
+  cart.find(
+    (item) =>
+      item.id === product.id
+  )?.quantity || 0;
+
+const soldOut =
+  product.stock - cartQty <= 0;
 
           return (
             <div
