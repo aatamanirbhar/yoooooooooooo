@@ -413,47 +413,41 @@ const handleBuyNow = async () => {
   paymentObject.open();
 };
   const handleWhatsApp = async () => {
-    if (
-      !customerForm.name ||
-      !customerForm.phone ||
-      !customerForm.address
-    ) {
-      showToast("Please fill all details");
-      return;
-    }
+  if (
+    !customerForm.name ||
+    !customerForm.phone ||
+    !customerForm.address
+  ) {
+    showToast("Please fill all details");
+    return;
+  }
 
-    const success = await updateStockToSoldOut();
+  const message = `🟡 MANUAL ORDER%0A%0A${cart
+    .map(
+      (item) =>
+        `${item.name} x${item.quantity} - ₹${
+          parseInt(
+            item.price.replace(
+              "₹",
+              ""
+            )
+          ) * item.quantity
+        }`
+    )
+    .join(
+      "%0A"
+    )}%0A%0ATotal: ₹${getCartTotal()}%0A%0AName: ${customerForm.name}%0APhone: ${customerForm.phone}%0AAddress: ${customerForm.address}`;
 
-    if (!success) return;
+  setCart([]);
+  setShowCart(false);
 
-    const itemText = `${cart[0].name} - ${cart[0].price}`;
-
-    const message = `Hello, I want to order:%0A${cart
-  .map(
-    (item) =>
-      `${item.name} x${item.quantity} - ₹${
-        parseInt(
-          item.price.replace(
-            "₹",
-            ""
-          )
-        ) * item.quantity
-      }`
-  )
-  .join(
-    "%0A"
-  )}%0A%0ATotal: ₹${getCartTotal()}%0A%0AName: ${customerForm.name}%0APhone: ${customerForm.phone}%0AAddress: ${customerForm.address}`;
-
-    setCart([]);
-    setShowCart(false);
-
-    setTimeout(() => {
-      window.open(
-        `https://wa.me/919509295882?text=${message}`,
-        "_blank"
-      );
-    }, 700);
-  };
+  setTimeout(() => {
+    window.open(
+      `https://wa.me/919509295882?text=${message}`,
+      "_blank"
+    );
+  }, 300);
+};
 
   return (
     <div className="relative min-h-screen overflow-hidden">
