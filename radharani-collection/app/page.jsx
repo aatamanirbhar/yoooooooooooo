@@ -1,10 +1,13 @@
 "use client";
-
+import emailjs from "@emailjs/browser";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { supabase } from "../lib/supabase";
 
 export default function RadharaniCollection() {
+
+  const [showSuccess, setShowSuccess] =
+  useState(false);
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
   const [toastMessage, setToastMessage] = useState("");
@@ -18,6 +21,7 @@ export default function RadharaniCollection() {
   const [customerForm, setCustomerForm] = useState({
     name: "",
     phone: "",
+    email: "",
     address: "",
   });
 
@@ -330,30 +334,52 @@ const handleBuyNow = async () => {
   const totalAmount =
     getCartTotal();
 
-  const { data, error } =
-    await supabase
-      .from("orders")
-      .insert([
-        {
-          customer_name:
-            customerForm.name,
-          phone:
-            customerForm.phone,
-          address:
-            customerForm.address,
-          product_name: cart
-            .map(
-              (item) =>
-                `${item.name} x${item.quantity}`
-            )
-            .join(", "),
-          amount:
-            totalAmount,
-          payment_status:
-            "pending",
-        },
-      ])
-      .select();
+ const { data, error } =
+  await supabase
+    .from("orders")
+    .insert([
+      {
+        customer_name:
+          customerForm.name,
+        customer_email:
+          customerForm.email,
+        phone:
+          customerForm.phone,
+        address:
+          customerForm.address,
+        product_name: cart
+          .map(
+            (item) =>
+              item.name
+          )
+          .join(", "),
+        amount:
+          getCartTotal(),
+        payment_status:
+          "pending",
+        order_items: cart.map(
+          (item) => ({
+            name: item.name,
+            quantity:
+              item.quantity,
+            price:
+              parseInt(
+                item.price.replace(
+                  "₹",
+                  ""
+                )
+              ),
+            product_code:
+              item.product_code,
+            image:
+              getImageUrl(
+                item.images[0]
+              ),
+          })
+        ),
+      },
+    ])
+    .select();
 
   if (error) {
     alert(error.message);
@@ -385,28 +411,136 @@ const handleBuyNow = async () => {
           })
           .eq("id", orderId);
 
+
+
         await updateStockAfterPayment();
 
- const message = `✅ PAID ORDER%0A%0A${cart
+        const itemsHtml = cart
   .map(
-    (item) =>
-      `${item.name} x${item.quantity} - ₹${
-        parseInt(
-          item.price.replace("₹", "")
-        ) * item.quantity
-      }`
+    (item) => `
+      <div style="display:flex; align-items:center; gap:14px; margin-bottom:18px; padding:12px; border:1px solid #eee; border-radius:12px;">
+        <img
+          src="${getImageUrl(item.images[0])}"
+          width="70"
+          height="90"
+          style="border-radius:10px; object-fit:cover;"
+        />
+
+        <div>
+          <a
+            href="https://radharanistore.vercel.app?code=${item.product_code}"
+            style="font-weight:bold; color:#111; text-decoration:none;"
+          >
+            ${item.name}
+          </a>
+
+          <p style="margin:6px 0 0 0; color:#666;">
+            Qty: ${item.quantity}
+          </p>
+
+          <p style="margin:4px 0 0 0;">
+            ₹${
+              parseInt(
+                item.price.replace(
+                  "₹",
+                  ""
+                )
+              ) * item.quantity
+            }
+          </p>
+        </div>
+      </div>
+    `
   )
-  .join(
-    "%0A"
-  )}%0A%0ATotal: ₹${getCartTotal()}%0A%0AName: ${customerForm.name}%0APhone: ${customerForm.phone}%0AAddress: ${customerForm.address}`;
+  .join("");
 
-        setCart([]);
-        setShowCart(false);
 
-        window.open(
-          `https://wa.me/919509295882?text=${message}`,
-          "_blank"
-        );
+  const itemsamanHtml = cart
+  .map(
+    (item) => `
+      <div style="display:flex; align-items:center; gap:16px; padding:14px; border:1px solid #f0f0f0; border-radius:14px; margin-bottom:18px;">
+        <img
+          src="${getImageUrl(item.images[0])}"
+          width="80"
+          height="100"
+          style="border-radius:12px; object-fit:cover;"
+        />
+
+        <div>
+          <p style="margin:0; font-size:18px; font-weight:bold;">
+            ${item.name}
+          </p>
+
+          <p style="margin:6px 0 0 0; color:#666;">
+            Quantity: ${item.quantity}
+          </p>
+
+          <p style="margin:6px 0 0 0; font-weight:bold;">
+            ₹${
+              parseInt(
+                item.price.replace(
+                  "₹",
+                  ""
+                )
+              ) * item.quantity
+            }
+          </p>
+        </div>
+      </div>
+    `
+  )
+  .join("");
+
+await emailjs.send(
+  "service_vpx32br",
+  "template_jpgwdz4",
+  {
+    customer_email:
+      customerForm.email,
+    customer_name:
+      customerForm.name,
+    phone:
+      customerForm.phone,
+    address:
+      customerForm.address,
+    total:
+      getCartTotal(),
+    items_html:
+      itemsamanHtml,
+  },
+  "gZ3KkN2pXs7YjKieK"
+);
+
+        await emailjs.send(
+  "service_vpx32br",
+  "template_m4vm0ov",
+  {
+    customer_name:
+      customerForm.name,
+    phone:
+      customerForm.phone,
+    address:
+      customerForm.address,
+    items: cart
+      .map(
+        (item) =>
+          `${item.name} x${item.quantity}`
+      )
+      .join(", "),
+    total: getCartTotal(),
+    payment_id:
+      response.razorpay_payment_id,
+  },
+  "gZ3KkN2pXs7YjKieK"
+);
+
+setCart([]);
+setShowCart(false);
+setShowSuccess(true);
+
+showToast(
+  "Payment successful"
+);
       },
     });
 
@@ -700,6 +834,19 @@ const handleBuyNow = async () => {
                 className="w-full border p-3 rounded-xl"
               />
 
+              <input
+  type="email"
+  placeholder="Email Address"
+  value={customerForm.email}
+  onChange={(e) =>
+    setCustomerForm({
+      ...customerForm,
+      email: e.target.value,
+    })
+  }
+  className="w-full border p-3 rounded-xl"
+/>
+
               <textarea
                 placeholder="Address"
                 value={customerForm.address}
@@ -729,6 +876,35 @@ const handleBuyNow = async () => {
           </div>
         </div>
       )}
+
+{showSuccess && (
+  <div className="fixed inset-0 z-[300] bg-black/60 flex items-center justify-center">
+    <div className="bg-white w-[90%] max-w-md rounded-3xl p-8 text-center shadow-2xl">
+      <div className="text-5xl mb-4">
+        ✅
+      </div>
+
+      <h2 className="text-2xl font-bold mb-3">
+        Order Placed Successfully
+      </h2>
+
+      <p className="text-gray-600 mb-6">
+        Thank you for shopping with
+        Radharani Collection.
+      </p>
+
+      <button
+        onClick={() =>
+          setShowSuccess(false)
+        }
+        className="w-full bg-green-600 text-white py-3 rounded-2xl"
+      >
+        Continue Shopping
+      </button>
+    </div>
+  </div>
+)}
+
 
       {/* Product Cards */}
       <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 p-6">
