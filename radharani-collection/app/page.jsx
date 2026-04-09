@@ -25,37 +25,42 @@ export default function RadharaniCollection() {
     address: "",
   });
 
+useEffect(() => {
+  const savedCart =
+    localStorage.getItem("cart");
+
+  if (savedCart) {
+    setCart(
+      JSON.parse(savedCart)
+    );
+  }
+}, []);
+
+useEffect(() => {
+  localStorage.setItem(
+    "cart",
+    JSON.stringify(cart)
+  );
+}, [cart]);
+
   useEffect(() => {
     fetchProducts();
 
 
     const channel = supabase
-      .channel("inventory-live")
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "inventory",
-        },
-        (payload) => {
-          setProducts((prev) =>
-            prev.map((item) =>
-              item.id === payload.new.id
-                ? { ...item, stock: payload.new.stock }
-                : item
-            )
-          );
-
-          setSelectedProduct((prev) =>
-            prev && prev.id === payload.new.id
-              ? { ...prev, stock: payload.new.stock }
-              : prev
-          );
-        }
-      )
-      .subscribe();
-
+  .channel("inventory-live")
+  .on(
+    "postgres_changes",
+    {
+      event: "*",
+      schema: "public",
+      table: "inventory",
+    },
+    () => {
+      fetchProducts();
+    }
+  )
+  .subscribe();
     return () => {
       supabase.removeChannel(channel);
     };
@@ -458,34 +463,68 @@ const handleBuyNow = async () => {
   const itemsamanHtml = cart
   .map(
     (item) => `
-      <div style="display:flex; align-items:center; gap:16px; padding:14px; border:1px solid #f0f0f0; border-radius:14px; margin-bottom:18px;">
-        <img
-          src="${getImageUrl(item.images[0])}"
-          width="80"
-          height="100"
-          style="border-radius:12px; object-fit:cover;"
-        />
+      <div style="
+        margin-bottom:18px;
+        padding:16px;
+        border:1px solid #ececec;
+        border-radius:18px;
+        background:#fafafa;
+        box-shadow:0 2px 8px rgba(0,0,0,0.04);
+      ">
+        <table style="width:100%; border-collapse:collapse;">
+          <tr>
+            <td style="width:90px; vertical-align:top;">
+              <img
+                src="${getImageUrl(item.images[0])}"
+                width="80"
+                height="100"
+                style="
+                  width:80px;
+                  height:100px;
+                  object-fit:cover;
+                  border-radius:12px;
+                  display:block;
+                "
+              />
+            </td>
 
-        <div>
-          <p style="margin:0; font-size:18px; font-weight:bold;">
-            ${item.name}
-          </p>
+            <td style="vertical-align:top; padding-left:14px;">
+              <p style="
+                margin:0;
+                font-size:18px;
+                font-weight:700;
+                color:#111;
+                line-height:1.35;
+              ">
+                ${item.name}
+              </p>
 
-          <p style="margin:6px 0 0 0; color:#666;">
-            Quantity: ${item.quantity}
-          </p>
+              <p style="
+                margin:10px 0 0 0;
+                font-size:14px;
+                color:#666;
+              ">
+                Quantity: ${item.quantity}
+              </p>
 
-          <p style="margin:6px 0 0 0; font-weight:bold;">
-            ₹${
-              parseInt(
-                item.price.replace(
-                  "₹",
-                  ""
-                )
-              ) * item.quantity
-            }
-          </p>
-        </div>
+              <p style="
+                margin:8px 0 0 0;
+                font-size:18px;
+                font-weight:700;
+                color:#111;
+              ">
+                ₹${
+                  parseInt(
+                    item.price.replace(
+                      "₹",
+                      ""
+                    )
+                  ) * item.quantity
+                }
+              </p>
+            </td>
+          </tr>
+        </table>
       </div>
     `
   )
@@ -535,6 +574,8 @@ await emailjs.send(
 );
 
 setCart([]);
+
+localStorage.removeItem("cart");
 setShowCart(false);
 setShowSuccess(true);
 
@@ -556,7 +597,7 @@ showToast(
     return;
   }
 
-  const message = `🟡 MANUAL ORDER%0A%0A${cart
+  const message = ` Hi, I want to place an order.%0A%0A${cart
     .map(
       (item) =>
         `${item.name} (${item.product_code})x${item.quantity} - ₹${
@@ -573,6 +614,8 @@ showToast(
     )}%0A%0ATotal: ₹${getCartTotal()}%0A%0AName: ${customerForm.name}%0APhone: ${customerForm.phone}%0AAddress: ${customerForm.address}`;
 
   setCart([]);
+  
+localStorage.removeItem("cart");
   setShowCart(false);
 
   setTimeout(() => {
