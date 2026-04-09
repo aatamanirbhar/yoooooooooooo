@@ -175,6 +175,44 @@ const removeFromCart = (id) => {
   showToast("Removed from cart");
 };
 
+const increaseCartQuantity = (id) => {
+  setCart((prev) =>
+    prev.map((item) => {
+      if (item.id !== id) return item;
+
+      const product = products.find(
+        (p) => p.id === id
+      );
+
+      if (
+        item.quantity >=
+        product.stock
+      ) {
+        showToast(
+          "No more stock available"
+        );
+        return item;
+      }
+
+      return {
+        ...item,
+        quantity:
+          item.quantity + 1,
+      };
+    })
+  );
+};
+
+const removeItemRow = (id) => {
+  setCart((prev) =>
+    prev.filter(
+      (item) => item.id !== id
+    )
+  );
+
+  showToast("Item removed");
+};
+
  const handleCartClick = () => {
   if (cart.length === 0) {
     showToast("Your cart is empty");
@@ -349,20 +387,18 @@ const handleBuyNow = async () => {
 
         await updateStockAfterPayment();
 
-        const message = `New Order%0A%0A${cart
-          .map(
-            (item) =>
-              `${item.name} x${item.quantity}`
-          )
-          .join(
-            "%0A"
-          )}%0A%0AName: ${
-          customerForm.name
-        }%0APhone: ${
-          customerForm.phone
-        }%0AAddress: ${
-          customerForm.address
-        }`;
+ const message = `✅ PAID ORDER%0A%0A${cart
+  .map(
+    (item) =>
+      `${item.name} x${item.quantity} - ₹${
+        parseInt(
+          item.price.replace("₹", "")
+        ) * item.quantity
+      }`
+  )
+  .join(
+    "%0A"
+  )}%0A%0ATotal: ₹${getCartTotal()}%0A%0AName: ${customerForm.name}%0APhone: ${customerForm.phone}%0AAddress: ${customerForm.address}`;
 
         setCart([]);
         setShowCart(false);
@@ -392,7 +428,21 @@ const handleBuyNow = async () => {
 
     const itemText = `${cart[0].name} - ${cart[0].price}`;
 
-    const message = `Hello, I want to order:%0A${itemText}%0A%0AName: ${customerForm.name}%0APhone: ${customerForm.phone}%0AAddress: ${customerForm.address}`;
+    const message = `Hello, I want to order:%0A${cart
+  .map(
+    (item) =>
+      `${item.name} x${item.quantity} - ₹${
+        parseInt(
+          item.price.replace(
+            "₹",
+            ""
+          )
+        ) * item.quantity
+      }`
+  )
+  .join(
+    "%0A"
+  )}%0A%0ATotal: ₹${getCartTotal()}%0A%0AName: ${customerForm.name}%0APhone: ${customerForm.phone}%0AAddress: ${customerForm.address}`;
 
     setCart([]);
     setShowCart(false);
@@ -473,7 +523,7 @@ const handleBuyNow = async () => {
 
       {/* Details Modal */}
       {showDetails && selectedProduct && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex justify-center items-center">
+       <div className="fixed inset-0 z-50 bg-black/50 flex justify-center items-start pt-4">
           <div className="bg-white w-[95%] max-w-3xl rounded-3xl p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold">
@@ -557,7 +607,7 @@ const handleBuyNow = async () => {
       {/* Cart Modal */}
       {showCart && (
         <div className="fixed inset-0 z-50 bg-black/50 flex justify-center items-center">
-          <div className="bg-white w-[95%] max-w-2xl rounded-3xl p-6">
+          <div className="bg-white w-[95%] max-w-2xl rounded-3xl p-6 max-h-[85vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-5">
               <h2 className="text-2xl font-bold">
                 Your Cart
@@ -576,10 +626,34 @@ const handleBuyNow = async () => {
                 key={item.id}
                 className="flex justify-between border-b py-3"
               >
-               <div>
+<div>
   <p>{item.name}</p>
-  <p>Qty: {item.quantity}</p>
-  <p>
+
+  <div className="flex items-center gap-3 mt-2">
+    <button
+      onClick={() =>
+        removeFromCart(item.id)
+      }
+      className="bg-red-500 text-white px-3 py-1 rounded-lg"
+    >
+      -
+    </button>
+
+    <p>Qty: {item.quantity}</p>
+
+    <button
+      onClick={() =>
+        increaseCartQuantity(
+          item.id
+        )
+      }
+      className="bg-green-600 text-white px-3 py-1 rounded-lg"
+    >
+      +
+    </button>
+  </div>
+
+  <p className="mt-2">
     ₹
     {parseInt(
       item.price.replace("₹", "")
@@ -587,14 +661,23 @@ const handleBuyNow = async () => {
   </p>
 </div>
 
-                <button
-                  onClick={()=>removeFromCart(item.id)}
-                  className="bg-red-500 text-white px-3 py-2 rounded-xl"
-                >
-                  -
-                </button>
+               <button
+  onClick={() =>
+    removeItemRow(item.id)
+  }
+  className="mt-2 bg-red-500 text-white px-3 py-1 rounded-lg"
+>
+  🗑️
+</button>
               </div>
             ))}
+
+
+            <div className="mt-4 border-t pt-4">
+  <p className="text-xl font-bold">
+    Total: ₹{getCartTotal()}
+  </p>
+</div>
 
             <div className="mt-6 space-y-4">
               <input
