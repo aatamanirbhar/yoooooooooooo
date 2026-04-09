@@ -425,7 +425,7 @@ const handleBuyNow = async () => {
   const message = `🟡 MANUAL ORDER%0A%0A${cart
     .map(
       (item) =>
-        `${item.name} x${item.quantity} - ₹${
+        `${item.name} (${item.product_code})x${item.quantity} - ₹${
           parseInt(
             item.price.replace(
               "₹",
