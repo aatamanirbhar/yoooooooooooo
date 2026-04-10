@@ -999,6 +999,61 @@ const soldOut =
                 <p className="text-lg font-bold mt-2">
                   {product.price}
                 </p>
+                <div className="mt-4 grid grid-cols-4 gap-2">
+                    <button
+                        onClick={(e) => {
+                              e.stopPropagation();
+                                    addToCart(product);
+                                        }}
+                                            disabled={soldOut}
+                                                className="bg-gray-900 text-white py-2 rounded-xl text-sm disabled:bg-gray-400"
+                                                  >
+                                                      Add to Cart
+                                                        </button>
+
+                                                          <button
+                                                              onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                          addToCart(product);
+                                                                                setShowCart(true);
+                                                                                    }}
+                                                                                        disabled={soldOut}
+                                                                                            className="bg-pink-600 text-white py-2 rounded-xl text-sm disabled:bg-gray-400"
+                                                                                              >
+                                                                                                  Buy Now
+                                                                                                    </button>
+
+                                                                                                      <button
+                                                                                                          onClick={(e) => {
+                                                                                                                e.stopPropagation();
+
+                                                                                                                      const message =
+                                                                                                                              `Hi, I want to buy this product.%0A%0A` +
+                                                                                                                                      `Name: ${product.name}%0A` +
+                                                                                                                                              `Price: ${product.price}%0A` +
+                                                                                                                                                      `Code: ${product.product_code}`;
+
+                                                                                                                                                            window.open(
+                                                                                                                                                                    `https://wa.me/919509295882?text=${message}`,
+                                                                                                                                                                            "_blank"
+                                                                                                                                                                                  );
+                                                                                                                                                                                      }}
+                                                                                                                                                                                          disabled={soldOut}
+                                                                                                                                                                                              className="bg-green-600 text-white py-2 rounded-xl text-sm disabled:bg-gray-400"
+                                                                                                                                                                                                >
+                                                                                                                                                                                                   Buy via WhatsApp
+                                                                                                                                                                                                      </button>
+
+                                                                                                                                                                                                        <button
+                                                                                                                                                                                                            onClick={(e) => {
+                                                                                                                                                                                                                  e.stopPropagation();
+                                                                                                                                                                                                                        handleCartClick();
+                                                                                                                                                                                                                            }}
+                                                                                                                                                                                                                                className="bg-black text-white py-2 rounded-xl text-sm"
+                                                                                                                                                                                                                                  >
+                                                                                                                                                                                                                                     Go to Cart
+                                                                                                                                                                                                                                        </button>
+                                                                                                                                                                                                                                        </div>
               </div>
             </div>
           );
