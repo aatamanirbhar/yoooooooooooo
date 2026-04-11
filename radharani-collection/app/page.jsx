@@ -721,7 +721,7 @@ localStorage.removeItem("cart");
 
     <div className="overflow-hidden py-6">
       <div className="flex gap-6 w-max animate-scroll">
-        {[...products.slice(0, 6), ...products.slice(0, 6)].map(
+        {[...products.slice(0, 10), ...products.slice(7, 10)].map(
           (product, index) => (
             <div
               key={`${product.id}-${index}`}
@@ -1047,7 +1047,7 @@ localStorage.removeItem("cart");
 
       {/* Product Cards */}
       <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 px-6 py-10">
-        {products.map((product) => {
+        {products.slice(5, 10).map((product) => {
         const cartQty =
   cart.find(
     (item) =>
@@ -1161,7 +1161,17 @@ const soldOut =
         })}
          <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
       </div>
-     
+     <a
+  href="https://wa.me/919509295882"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="fixed bottom-6 right-6 z-[100] bg-emerald-600 text-white px-5 py-4 rounded-full shadow-2xl hover:scale-105 transition-all duration-300 flex items-center gap-2"
+>
+  <span className="text-lg">💬</span>
+  <span className="font-medium">
+    Chat Now
+  </span>
+</a>
     </div>
   );
 }
