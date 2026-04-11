@@ -19,6 +19,7 @@ setForm({
   price: "",
   stock: "",
   description: "",
+  category: "",
   product_code: "",
   images: "",
 });
@@ -131,11 +132,11 @@ return ( <div className="min-h-screen p-8 max-w-2xl mx-auto space-y-6"> <h1 clas
   className="w-full bg-white border border-gray-200 px-5 py-4 rounded-2xl"
 >
   <option value="">Select Category</option>
-  <option value="Women">Women</option>
-  <option value="Dupattas">Dupattas</option>
-  <option value="Men">Men</option>
-  <option value="Kids Wear">Kids Wear</option>
-  <option value="Accessories">Accessories</option>
+  <option value="dupattas">Dupattas</option>
+  <option value="women">Women</option>
+  <option value="men">Men</option>
+  <option value="kids-wear">Kids Wear</option>
+  <option value="accessories">Accessories</option>
 </select>
 
     <div className="w-full border-2 border-dashed p-6 rounded-xl text-center space-y-3"
