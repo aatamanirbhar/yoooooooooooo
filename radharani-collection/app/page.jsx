@@ -901,7 +901,7 @@ localStorage.removeItem("cart");
         </div>
       ))}
   </div>
-</div>git 
+</div>
 
 
           </div>
