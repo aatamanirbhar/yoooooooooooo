@@ -6,6 +6,8 @@ import { supabase } from "../lib/supabase";
 
 export default function RadharaniCollection() {
 
+  const [selectedCategory, setSelectedCategory] = useState("");
+
   const [showSuccess, setShowSuccess] =
   useState(false);
   const [products, setProducts] = useState([]);
@@ -629,18 +631,7 @@ localStorage.removeItem("cart");
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-white via-rose-50 to-stone-100 text-gray-900">
       {/* Background Video */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="fixed inset-0 w-full h-full object-cover opacity-20 -z-10 pointer-events-none"
-      >
-        <source
-          src="/background-video.mp4"
-          type="video/mp4"
-        />
-      </video>
+
 
       {/* Toast */}
      {toastMessage && (
@@ -1217,6 +1208,8 @@ const soldOut =
                                                                                                                                                                                                                                         </button>
                                                                                                                                                                                                                                         </div>
 
+                                                                                                                                                                                                                                        
+
 
 
               </div>
@@ -1236,6 +1229,112 @@ const soldOut =
     Chat Now
   </span>
 </a>
+
+
+      {/* Dupatta Promo Video Section */}
+      <div className="max-w-7xl mx-auto px-6 py-10">
+        <div
+          onClick={() => {
+            window.location.href =
+              "/category/dupattas";
+          }}
+          className="relative rounded-[32px] overflow-hidden shadow-2xl cursor-pointer group"
+        >
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-[220px] md:h-[320px] object-cover group-hover:scale-105 transition-all duration-700"
+          >
+            <source
+              src="/duppatas-banner.mp4"
+              type="video/mp4"
+            />
+          </video>
+
+          <div className="absolute inset-0 bg-black/35 flex items-center justify-center">
+            <div className="text-center text-white px-6">
+              <p className="text-xs tracking-[0.35em] uppercase mb-3">
+                New Drop
+              </p>
+
+              <h2 className="text-3xl md:text-5xl font-semibold">
+                Dupattas @ ₹100
+              </h2>
+
+              <p className="mt-3 text-sm md:text-base text-white/90">
+                Tap to explore the collection
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+{/* Shop by Category */}
+<div className="max-w-7xl mx-auto px-6 py-12">
+  <p className="text-xs tracking-[0.35em] uppercase text-gray-500 mb-3">
+    Shop by Category
+  </p>
+
+  <h2 className="text-3xl md:text-4xl font-semibold mb-8">
+    Explore Collections
+  </h2>
+
+  <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+    {[
+      {
+        title: "Women",
+        video: "/women.mp4",
+        slug: "women",
+      },
+      {
+        title: "Men",
+        video: "/men.mp4",
+        slug: "men",
+      },
+      {
+        title: "Kids Wear",
+        video: "/kids.mp4",
+        slug: "kids-wear",
+      },
+      {
+        title: "Accessories",
+        video: "/accessories.mp4",
+        slug: "accessories",
+      },
+    ].map((cat) => (
+      <div
+        key={cat.slug}
+        onClick={() => {
+          window.location.href = `/category/${cat.slug}`;
+        }}
+        className="relative rounded-[28px] overflow-hidden shadow-xl cursor-pointer group"
+      >
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-[180px] md:h-[220px] object-cover group-hover:scale-105 transition-all duration-700"
+        >
+          <source
+            src={cat.video}
+            type="video/mp4"
+          />
+        </video>
+
+        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+          <p className="text-white text-lg md:text-xl font-semibold text-center px-2">
+            {cat.title}
+          </p>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
+
     </div>
   );
 }

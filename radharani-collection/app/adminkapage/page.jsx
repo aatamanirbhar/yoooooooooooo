@@ -2,11 +2,11 @@
 
 import { useState } from "react"; import { supabase } from "../../lib/supabase";
 
-export default function AdminPage() { const [form, setForm] = useState({ name: "", price: "", stock: "", description: "", product_code: "", images: "", });
+export default function AdminPage() { const [form, setForm] = useState({ name: "", price: "", stock: "", description: "",category: "", product_code: "", images: "", });
 
 const [deleteCode, setDeleteCode] = useState(""); const [stockCode, setStockCode] = useState(""); const [stockQty, setStockQty] = useState(""); const [stockAction, setStockAction] = useState("add"); const [uploading, setUploading] = useState(false);
 
-const addProduct = async () => { const { error } = await supabase.from("inventory").insert([ { name: form.name, price: Number(form.price), stock: Number(form.stock), description: form.description, product_code: form.product_code, images: form.images ? form.images.split(",").map((img) => img.trim()).filter(Boolean) : [], }, ]);
+const addProduct = async () => { const { error } = await supabase.from("inventory").insert([ { name: form.name, price: Number(form.price), stock: Number(form.stock), category: form.category,description: form.description, product_code: form.product_code, images: form.images ? form.images.split(",").map((img) => img.trim()).filter(Boolean) : [], }, ]);
 
 if (error) {
   alert(error.message);
@@ -120,6 +120,23 @@ return ( <div className="min-h-screen p-8 max-w-2xl mx-auto space-y-6"> <h1 clas
     <input placeholder="Stock" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} className="w-full border p-3 rounded-xl" />
     <input placeholder="Product Code" value={form.product_code} onChange={(e) => setForm({ ...form, product_code: e.target.value })} className="w-full border p-3 rounded-xl" />
     <textarea placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full border p-3 rounded-xl" />
+    <select
+  value={form.category}
+  onChange={(e) =>
+    setForm({
+      ...form,
+      category: e.target.value,
+    })
+  }
+  className="w-full bg-white border border-gray-200 px-5 py-4 rounded-2xl"
+>
+  <option value="">Select Category</option>
+  <option value="Women">Women</option>
+  <option value="Dupattas">Dupattas</option>
+  <option value="Men">Men</option>
+  <option value="Kids Wear">Kids Wear</option>
+  <option value="Accessories">Accessories</option>
+</select>
 
     <div className="w-full border-2 border-dashed p-6 rounded-xl text-center space-y-3"
       onDragOver={(e) => e.preventDefault()}
