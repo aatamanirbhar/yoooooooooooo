@@ -857,9 +857,58 @@ localStorage.removeItem("cart");
     ? "Sold Out"
     : "Add to Cart"}
 </button>
+
+{/* You may also like */}
+<div className="mt-8">
+  <p className="text-xl font-semibold mb-4">
+    You may also like
+  </p>
+
+  <div className="grid grid-cols-2 gap-4">
+    {products
+      .filter(
+        (p) =>
+          p.id !== selectedProduct.id
+      )
+      .slice(0, 4)
+      .map((item) => (
+        <div
+          key={item.id}
+          onClick={() => {
+            setSelectedProduct(item);
+          }}
+          className="bg-white rounded-2xl shadow-md overflow-hidden cursor-pointer hover:shadow-xl transition-all"
+        >
+          <Image
+            src={getImageUrl(
+              item.images[0]
+            )}
+            alt={item.name}
+            width={200}
+            height={250}
+            className="w-full h-40 object-cover"
+          />
+
+          <div className="p-3">
+            <p className="font-medium line-clamp-1">
+              {item.name}
+            </p>
+
+            <p className="font-bold mt-1">
+              {item.price}
+            </p>
           </div>
         </div>
+      ))}
+  </div>
+</div>
+
+
+          </div>
+
+        </div>
       )}
+      
 
       {/* Cart Modal */}
       {showCart && (
@@ -1080,6 +1129,18 @@ const soldOut =
                 </div>
               )}
 
+  {/* Bestseller Badge */}
+  <div className="absolute top-3 left-3 z-20 bg-black text-white px-3 py-1 rounded-full text-[10px] tracking-[0.15em] uppercase shadow-lg">
+    Bestseller
+  </div>
+
+  {product.stock <= 2 && (
+    <div className="absolute top-3 right-3 z-20 bg-rose-600 text-white px-3 py-1 rounded-full text-[10px] shadow-lg">
+      Only {product.stock} left
+    </div>
+  )}
+
+
               {product.images?.[0] && (
                 <Image
                   src={getImageUrl(
@@ -1111,7 +1172,7 @@ const soldOut =
                                                   >
                                                       Add to Cart
                                                         </button>
-
+                                                                                 
                                                           <button
                                                               onClick={(e) => {
                                                                     e.stopPropagation();
@@ -1155,6 +1216,9 @@ const soldOut =
                                                                                                                                                                                                                                      Go to Cart
                                                                                                                                                                                                                                         </button>
                                                                                                                                                                                                                                         </div>
+
+
+
               </div>
             </div>
           );
