@@ -627,7 +627,7 @@ localStorage.removeItem("cart");
 };
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-white via-rose-50 to-stone-100 text-gray-900">
       {/* Background Video */}
       <video
         autoPlay
@@ -667,30 +667,116 @@ localStorage.removeItem("cart");
         </div>
       )}
 
+
+      {/* Premium Sale Strip */}
+<div className="sticky top-0 z-[60] bg-black text-white overflow-hidden">
+  <div className="whitespace-nowrap py-2 text-xs md:text-sm tracking-[0.25em] uppercase animate-scroll-strip">
+    <span className="mx-8">Festive Sale Live</span>
+    <span className="mx-8">Free Shipping Above ₹999</span>
+    <span className="mx-8">Premium At Shop Prices</span>
+    <span className="mx-8">WhatsApp Support Available</span>
+    <span className="mx-8">New Bridal Collection Live</span>
+  </div>
+</div>
+
       {/* Header */}
-      <div className="relative z-50 flex justify-between items-center p-6">
-        <h1 className="text-4xl font-bold text-black">
-          राधारानी Collection
-        </h1>
+    <div className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-white/40 shadow-sm">
+  <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-5">
+    <div>
+      <h1 className="text-3xl md:text-5xl font-semibold tracking-wide text-black leading-tight">
+        राधारानी स्टोर
+      </h1>
 
-        <div className="relative">
-          {showEmptyMessage && (
-            <div className="absolute bottom-full mb-2 right-0 bg-black text-white px-4 py-2 rounded-xl">
-              Your cart is empty
+      <p className="text-xs md:text-sm text-gray-500 mt-1 tracking-[0.35em] uppercase font-medium">
+        Premium At Shop Prices
+      </p>
+    </div>
+
+    <button
+      onClick={handleCartClick}
+      className="relative bg-black text-white px-6 py-3 rounded-full shadow-xl hover:scale-105 transition-all duration-300"
+    >
+      🛍 Cart
+
+      <span className="absolute -top-2 -right-2 bg-rose-500 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full shadow-md">
+        {cart.length}
+      </span>
+    </button>
+  </div>
+</div>
+
+
+{/* Auto Moving Luxury Product Carousel */}
+<div className="relative z-10 px-6 pt-6">
+  <div className="max-w-7xl mx-auto rounded-[32px] overflow-hidden shadow-2xl border border-white/40 bg-white/70 backdrop-blur-xl">
+    <div className="px-6 py-5 border-b border-gray-200 bg-white/60">
+      <p className="text-xs tracking-[0.35em] uppercase text-gray-500">
+        Featured Collection
+      </p>
+
+      <h2 className="text-2xl md:text-4xl font-semibold mt-2">
+        Trending Premium Styles
+      </h2>
+    </div>
+
+    <div className="overflow-hidden py-6">
+      <div className="flex gap-6 w-max animate-scroll">
+        {[...products.slice(0, 6), ...products.slice(0, 6)].map(
+          (product, index) => (
+            <div
+              key={`${product.id}-${index}`}
+              onClick={() => {
+                setSelectedProduct(product);
+                setShowDetails(true);
+              }}
+              className="w-[260px] md:w-[320px] bg-white rounded-3xl shadow-lg overflow-hidden cursor-pointer hover:scale-[1.02] transition-all duration-300"
+            >
+              {product.images?.[0] && (
+                <Image
+                  src={getImageUrl(product.images[0])}
+                  alt={product.name}
+                  width={400}
+                  height={500}
+                  className="w-full h-72 object-cover"
+                />
+              )}
+
+              <div className="p-5">
+                <h3 className="text-lg font-semibold line-clamp-1">
+                  {product.name}
+                </h3>
+
+                <p className="text-xl font-bold mt-2">
+                  {product.price}
+                </p>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    addToCart(product);
+                  }}
+                  className="mt-4 w-full bg-black text-white py-3 rounded-2xl hover:bg-gray-800 transition-all"
+                >
+                  Add to Cart
+                </button>
+              </div>
             </div>
-          )}
-
-          <button
-            onClick={handleCartClick}
-            className="relative bg-green-600 text-white px-5 py-3 rounded-2xl"
-          >
-            🛒 Cart
-            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full">
-              {cart.length}
-            </span>
-          </button>
-        </div>
+          )
+        )}
       </div>
+    </div>
+  </div>
+</div>
+
+{/* Trust Strip */}
+<div className="max-w-7xl mx-auto px-6 mt-4">
+  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-white/80 backdrop-blur-xl rounded-3xl p-4 shadow-lg border border-white/40">
+    <div className="text-center text-sm font-medium">🚚 Free Delivery</div>
+    <div className="text-center text-sm font-medium">🔒 Secure Payment</div>
+    <div className="text-center text-sm font-medium">💬 WhatsApp Support</div>
+    <div className="text-center text-sm font-medium">✨ Premium Quality</div>
+  </div>
+</div>
 
       {/* Details Modal */}
       {showDetails && selectedProduct && (
@@ -703,7 +789,7 @@ localStorage.removeItem("cart");
 
               <button
                 onClick={() => setShowDetails(false)}
-                className="bg-red-500 text-white px-4 py-2 rounded-xl"
+                className="w-11 h-11 flex items-center justify-center bg-white border border-gray-200 text-gray-700 rounded-2xl shadow-sm hover:shadow-md hover:scale-105 transition-all"
               >
                 Close
               </button>
@@ -786,7 +872,7 @@ localStorage.removeItem("cart");
 
               <button
                 onClick={() => setShowCart(false)}
-                className="bg-red-500 text-white px-4 py-2 rounded-xl"
+                className="w-11 h-11 flex items-center justify-center bg-black text-white rounded-2xl shadow-sm hover:shadow-md hover:scale-105 transition-all"
               >
                 Close
               </button>
@@ -805,7 +891,7 @@ localStorage.removeItem("cart");
       onClick={() =>
         removeFromCart(item.id)
       }
-      className="bg-red-500 text-white px-3 py-1 rounded-lg"
+      className="w-10 h-10 flex items-center justify-center bg-white border border-gray-200 text-black rounded-2xl shadow-sm hover:shadow-md hover:scale-105 transition-all"
     >
       -
     </button>
@@ -818,7 +904,7 @@ localStorage.removeItem("cart");
           item.id
         )
       }
-      className="bg-green-600 text-white px-3 py-1 rounded-lg"
+      className="w-10 h-10 flex items-center justify-center bg-black text-white rounded-2xl shadow-sm hover:shadow-md hover:scale-105 transition-all"
     >
       +
     </button>
@@ -836,7 +922,7 @@ localStorage.removeItem("cart");
   onClick={() =>
     removeItemRow(item.id)
   }
-  className="mt-2 bg-red-500 text-white px-3 py-1 rounded-lg"
+  className="w-10 h-10 flex items-center justify-center bg-white border border-gray-200 text-red-500 rounded-2xl shadow-sm hover:bg-red-50 hover:scale-105 transition-all"
 >
   🗑️
 </button>
@@ -850,7 +936,11 @@ localStorage.removeItem("cart");
   </p>
 </div>
 
-            <div className="mt-6 space-y-4">
+            <div className="mt-8 space-y-5 bg-stone-50/80 backdrop-blur-xl p-5 rounded-3xl border border-gray-200 shadow-sm">
+             <label className="text-sm font-medium text-gray-600">
+  Full Name
+</label>
+             
               <input
                 type="text"
                 placeholder="Full Name"
@@ -861,10 +951,12 @@ localStorage.removeItem("cart");
                     name: e.target.value,
                   })
                 }
-                className="w-full border p-3 rounded-xl"
+                className="w-full bg-white border border-gray-200 px-5 py-4 rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-300 transition-all"
               />
 
-              <input
+         <label className="text-sm font-medium text-gray-600">
+  Phone Number
+</label>     <input
                 type="text"
                 placeholder="Phone Number"
                 value={customerForm.phone}
@@ -874,9 +966,11 @@ localStorage.removeItem("cart");
                     phone: e.target.value,
                   })
                 }
-                className="w-full border p-3 rounded-xl"
+                className="w-full bg-white border border-gray-200 px-4 py-3 rounded-2xl shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-rose-300 transition-all"
               />
-
+<label className="text-sm font-medium text-gray-600">
+  Email Address
+</label>
               <input
   type="email"
   placeholder="Email Address"
@@ -890,7 +984,9 @@ localStorage.removeItem("cart");
   className="w-full border p-3 rounded-xl"
 />
 
-              <textarea
+     <label className="text-sm font-medium text-gray-600">
+  Delivery Address
+</label>         <textarea
                 placeholder="Address"
                 value={customerForm.address}
                 onChange={(e) =>
@@ -905,14 +1001,14 @@ localStorage.removeItem("cart");
 
             <button
               onClick={handleBuyNow}
-              className="mt-5 w-full bg-blue-600 text-white py-3 rounded-xl"
+              className="mt-6 w-full bg-black text-white py-4 rounded-2xl shadow-xl hover:scale-[1.01] transition-all duration-300"
             >
               Buy Now
             </button>
 
             <button
               onClick={handleWhatsApp}
-              className="mt-3 w-full bg-green-600 text-white py-3 rounded-xl"
+              className="mt-3 w-full bg-emerald-600 text-white py-4 rounded-2xl shadow-xl hover:scale-[1.01] transition-all duration-300"
             >
               Buy on WhatsApp
             </button>
@@ -950,7 +1046,7 @@ localStorage.removeItem("cart");
 
 
       {/* Product Cards */}
-      <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 p-6">
+      <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 px-6 py-10">
         {products.map((product) => {
         const cartQty =
   cart.find(
@@ -961,6 +1057,11 @@ localStorage.removeItem("cart");
 const soldOut =
   product.stock - cartQty <= 0;
 
+
+
+
+
+  
           return (
             <div
               key={product.id}
@@ -969,7 +1070,7 @@ const soldOut =
   setSelectedProduct(product);
   setShowDetails(true);
 }}
-              className="relative bg-white rounded-3xl overflow-hidden shadow-xl cursor-pointer"
+              className="group relative bg-white/80 backdrop-blur-xl border border-white/40 rounded-[28px] overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500 cursor-pointer"
             >
               {soldOut && (
                 <div className="absolute inset-0 z-20 bg-black/50 flex items-center justify-center">
@@ -987,16 +1088,16 @@ const soldOut =
                   alt={product.name}
                   width={400}
                   height={500}
-                  className="w-full h-72 object-cover"
+                  className="w-full h-80 object-cover transition-transform duration-700 group-hover:scale-105"
                 />
               )}
 
-              <div className="p-5">
-                <h2 className="text-xl font-semibold">
+              <div className="p-6">
+                <h2 className="text-xl font-semibold tracking-wide">
                   {product.name}
                 </h2>
 
-                <p className="text-lg font-bold mt-2">
+                <p className="text-2xl font-bold mt-3 text-gray-900">
                   {product.price}
                 </p>
                 <div className="mt-4 grid grid-cols-4 gap-2">
@@ -1006,7 +1107,7 @@ const soldOut =
                                     addToCart(product);
                                         }}
                                             disabled={soldOut}
-                                                className="bg-gray-900 text-white py-2 rounded-xl text-sm disabled:bg-gray-400"
+                                               className="bg-black hover:bg-gray-800 text-white py-3 rounded-2xl text-sm font-medium transition-all duration-300 shadow-md"
                                                   >
                                                       Add to Cart
                                                         </button>
@@ -1018,7 +1119,7 @@ const soldOut =
                                                                                 setShowCart(true);
                                                                                     }}
                                                                                         disabled={soldOut}
-                                                                                            className="bg-pink-600 text-white py-2 rounded-xl text-sm disabled:bg-gray-400"
+                                                                                            className="bg-rose-600 hover:bg-rose-700 text-white py-3 rounded-2xl text-sm font-medium transition-all duration-300 shadow-md"
                                                                                               >
                                                                                                   Buy Now
                                                                                                     </button>
@@ -1039,7 +1140,7 @@ const soldOut =
                                                                                                                                                                                   );
                                                                                                                                                                                       }}
                                                                                                                                                                                           disabled={soldOut}
-                                                                                                                                                                                              className="bg-green-600 text-white py-2 rounded-xl text-sm disabled:bg-gray-400"
+                                                                                                                                                                                              className="bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-2xl text-sm font-medium transition-all duration-300 shadow-md"
                                                                                                                                                                                                 >
                                                                                                                                                                                                    Buy via WhatsApp
                                                                                                                                                                                                       </button>
@@ -1049,7 +1150,7 @@ const soldOut =
                                                                                                                                                                                                                   e.stopPropagation();
                                                                                                                                                                                                                         handleCartClick();
                                                                                                                                                                                                                             }}
-                                                                                                                                                                                                                                className="bg-black text-white py-2 rounded-xl text-sm"
+                                                                                                                                                                                                                                className="bg-white border border-gray-300 hover:bg-gray-50 text-black py-3 rounded-2xl text-sm font-medium transition-all duration-300"
                                                                                                                                                                                                                                   >
                                                                                                                                                                                                                                      Go to Cart
                                                                                                                                                                                                                                         </button>
