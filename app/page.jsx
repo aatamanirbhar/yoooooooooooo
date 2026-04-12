@@ -1228,7 +1228,7 @@ const soldOut =
 >
   <span className="text-lg">💬</span>
   <span className="font-medium">
-    Chat Now On Whatsapp
+    Chat Now On Whatsapp Now
   </span>
 </a>
 
