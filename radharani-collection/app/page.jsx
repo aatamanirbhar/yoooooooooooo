@@ -396,6 +396,8 @@ const handleBuyNow = async () => {
   const orderId =
     data[0].id;
 
+    await loadRazorpayScript();
+
   const paymentObject =
     new window.Razorpay({
       key: "rzp_test_SayxRYG9e6D0Gv",
