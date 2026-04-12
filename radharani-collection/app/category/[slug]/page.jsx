@@ -7,12 +7,12 @@ import Image from "next/image";
 
 export default function CategoryPage() {
   const { slug } = useParams();
-  const [products, setProducts] = useState([]);
 
+  const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
-const [showDetails, setShowDetails] = useState(false);
-const [cart, setCart] = useState([]);
-const [showCart, setShowCart] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
+  const [cart, setCart] = useState([]);
+  const [showCart, setShowCart] = useState(false);
 
   useEffect(() => {
     fetchProducts();
@@ -30,8 +30,8 @@ const [showCart, setShowCart] = useState(false);
   };
 
   const addToCart = (product) => {
-  setCart((prev) => [...prev, product]);
-};
+    setCart((prev) => [...prev, product]);
+  };
 
   const getImageUrl = (path) =>
     supabase.storage
@@ -39,27 +39,21 @@ const [showCart, setShowCart] = useState(false);
       .getPublicUrl(path).data.publicUrl;
 
   return (
-
-    
-
-    
     <div className="min-h-screen bg-gradient-to-br from-white via-rose-50 to-stone-100">
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <h1 className="text-2xl font-semibold capitalize">
+            {slug.replace("-", " ")}
+          </h1>
 
-<header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-200">
-  <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-    <h1 className="text-2xl font-semibold capitalize">
-      {slug.replace("-", " ")}
-    </h1>
-
-    <button
-      onClick={() => setShowCart(true)}
-      className="bg-black text-white px-4 py-2 rounded-2xl shadow-lg"
-    >
-      🛒 Go to Cart ({cart.length})
-    </button>
-  </div>
-</header>
-
+          <button
+            onClick={() => setShowCart(true)}
+            className="bg-black text-white px-4 py-2 rounded-2xl shadow-lg"
+          >
+            🛒 Go to Cart ({cart.length})
+          </button>
+        </div>
+      </header>
 
       <div className="max-w-7xl mx-auto px-6 py-10">
         <p className="text-xs tracking-[0.35em] uppercase text-gray-500 mb-2">
@@ -73,18 +67,16 @@ const [showCart, setShowCart] = useState(false);
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {products.map((product) => (
             <div
-  key={product.id}
-  onClick={() => {
-    setSelectedProduct(product);
-    setShowDetails(true);
-  }}
-              className="group relative bg-white/90 rounded-[28px] overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-500"
+              key={product.id}
+              onClick={() => {
+                setSelectedProduct(product);
+                setShowDetails(true);
+              }}
+              className="group relative bg-white/90 rounded-[28px] overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 cursor-pointer"
             >
               {product.images?.[0] && (
                 <Image
-                  src={getImageUrl(
-                    product.images[0]
-                  )}
+                  src={getImageUrl(product.images[0])}
                   alt={product.name}
                   width={400}
                   height={500}
@@ -101,53 +93,102 @@ const [showCart, setShowCart] = useState(false);
                   ₹{product.price}
                 </p>
 
-<div className="mt-4 space-y-3">
-  <button
-    onClick={(e) => {
-      e.stopPropagation();
-      addToCart(product);
-    }}
-    className="w-full bg-black text-white py-3 rounded-2xl shadow-lg"
-  >
-    Add to Cart
-  </button>
+                <div className="mt-4 space-y-3">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      addToCart(product);
+                    }}
+                    className="w-full bg-black text-white py-3 rounded-2xl shadow-lg"
+                  >
+                    Add to Cart
+                  </button>
 
-  <button
-    onClick={(e) => {
-      e.stopPropagation();
-      setSelectedProduct(product);
-      setShowDetails(true);
-    }}
-    className="w-full bg-rose-600 text-white py-3 rounded-2xl shadow-lg"
-  >
-    Buy Now
-  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedProduct(product);
+                      setShowDetails(true);
+                    }}
+                    className="w-full bg-rose-600 text-white py-3 rounded-2xl shadow-lg"
+                  >
+                    Buy Now
+                  </button>
 
-  <a
-    href={`https://wa.me/919509295882?text=Hi, I want to buy ${product.name}`}
-    target="_blank"
-    rel="noopener noreferrer"
-    onClick={(e) => e.stopPropagation()}
-    className="block w-full bg-emerald-600 text-white py-3 rounded-2xl text-center shadow-lg"
-  >
-    Buy on WhatsApp
-  </a>
+                  <a
+                    href={`https://wa.me/919509295882?text=Hi, I want to buy ${product.name}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) =>
+                      e.stopPropagation()
+                    }
+                    className="block w-full bg-emerald-600 text-white py-3 rounded-2xl text-center shadow-lg"
+                  >
+                    Buy on WhatsApp
+                  </a>
 
-  <button
-    onClick={(e) => {
-      e.stopPropagation();
-      setShowCart(true);
-    }}
-    className="w-full border border-black py-3 rounded-2xl"
-  >
-    Go to Cart
-    </button>
-</div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowCart(true);
+                    }}
+                    className="w-full border border-black py-3 rounded-2xl"
+                  >
+                    Go to Cart
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </div>
-              </div>
+
+        {showDetails && selectedProduct && (
+          <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center">
+            <div className="bg-white rounded-3xl p-6 max-w-md w-full">
+              <h2 className="text-2xl font-semibold">
+                {selectedProduct.name}
+              </h2>
+
+              <p className="mt-3 text-xl font-bold">
+                ₹{selectedProduct.price}
+              </p>
+
+              <p className="mt-3">
+                {selectedProduct.description}
+              </p>
+
+              <button
+                onClick={() =>
+                  addToCart(selectedProduct)
+                }
+                className="mt-5 w-full bg-black text-white py-3 rounded-2xl"
+              >
+                Add to Cart
+              </button>
+            </div>
+          </div>
+        )}
+
+        {showCart && (
+          <div className="fixed inset-0 z-[110] bg-black/40 flex items-center justify-center">
+            <div className="bg-white rounded-3xl p-6 max-w-md w-full">
+              <h2 className="text-2xl font-semibold mb-4">
+                Your Cart
+              </h2>
+
+              {cart.length === 0 ? (
+                <p>Your cart is empty</p>
+              ) : (
+                cart.map((item, idx) => (
+                  <p key={idx}>
+                    {item.name} - ₹{item.price}
+                  </p>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
