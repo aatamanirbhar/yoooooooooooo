@@ -1342,6 +1342,43 @@ const soldOut =
   </div>
 </div>
 
+
+{/* Men's Shorts Half Banner */}
+<div className="max-w-7xl mx-auto px-6 pb-10">
+  <div
+    onClick={() => {
+      window.location.href = "/category/mens-shorts";
+    }}
+    className="w-full md:w-1/2 relative rounded-[28px] overflow-hidden shadow-2xl cursor-pointer group"
+  >
+    <video
+      autoPlay
+      loop
+      muted
+      playsInline
+className="w-full h-[400px] md:h-[520px] object-cover group-hover:scale-105 transition-all duration-700"
+    >
+      <source src="/mens-shorts-banner.mp4" type="video/mp4" />
+    </video>
+
+    <div className="absolute inset-0 bg-black/25 group-hover:bg-black/15 transition-all duration-500"></div>
+
+    <div className="absolute inset-0 flex items-center justify-center">
+      <div className="text-center text-white px-4">
+        <p className="text-xs tracking-[0.3em] uppercase mb-2">
+          New Drop
+        </p>
+        <h2 className="text-2xl md:text-4xl font-semibold">
+          Men's Shorts
+        </h2>
+        <p className="mt-2 text-sm text-white/90">
+          Stylish & Comfortable
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
 {/* Shop by Category */}
 <div className="max-w-7xl mx-auto px-6 py-12">
   <p className="text-xs tracking-[0.35em] uppercase text-gray-500 mb-3">

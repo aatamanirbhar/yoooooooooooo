@@ -134,6 +134,7 @@ return ( <div className="min-h-screen p-8 max-w-2xl mx-auto space-y-6"> <h1 clas
   <option value="">Select Category</option>
   <option value="dupattas">Dupattas</option>
   <option value="tshirt">T-Shirts</option>
+  <option value="mens-shorts">Men's Shorts</option>
   <option value="women">Women</option>
   <option value="men">Men</option>
   <option value="kids-wear">Kids Wear</option>
