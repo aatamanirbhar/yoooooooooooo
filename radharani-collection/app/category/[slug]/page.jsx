@@ -12,10 +12,11 @@ export default function CategoryPage() {
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
   const [toastMessage, setToastMessage] = useState("");
-  const [showCart, setShowCart] = useState(false);
 
+  const [showCart, setShowCart] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [zoomedImage, setZoomedImage] = useState(null);
 
   const [customerForm, setCustomerForm] = useState({
     name: "",
@@ -37,6 +38,31 @@ export default function CategoryPage() {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
+  useEffect(() => {
+    const handleBack = () => {
+      if (zoomedImage) {
+        setZoomedImage(null);
+        return;
+      }
+
+      if (showDetails) {
+        setShowDetails(false);
+        return;
+      }
+
+      if (showCart) {
+        setShowCart(false);
+        return;
+      }
+    };
+
+    window.addEventListener("popstate", handleBack);
+
+    return () => {
+      window.removeEventListener("popstate", handleBack);
+    };
+  }, [zoomedImage, showDetails, showCart]);
+
   const fetchProducts = async () => {
     const { data } = await supabase
       .from("inventory")
@@ -55,7 +81,9 @@ export default function CategoryPage() {
   };
 
   const getImageUrl = (path) =>
-    supabase.storage.from("product-images").getPublicUrl(path).data.publicUrl;
+    supabase.storage
+      .from("product-images")
+      .getPublicUrl(path).data.publicUrl;
 
   const showToast = (msg) => {
     setToastMessage(msg);
@@ -107,13 +135,28 @@ export default function CategoryPage() {
     setCart((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const getCartTotal = () => {
-    return cart.reduce(
+  const getCartTotal = () =>
+    cart.reduce(
       (sum, item) =>
         sum +
         parseInt(item.price.replace("₹", "")) * item.quantity,
       0
     );
+
+  const handleCartClick = () => {
+    window.history.pushState({}, "");
+    setShowCart(true);
+  };
+
+  const openDetailsModal = (product) => {
+    window.history.pushState({}, "");
+    setSelectedProduct(product);
+    setShowDetails(true);
+  };
+
+  const openZoomImage = (img) => {
+    window.history.pushState({}, "");
+    setZoomedImage(getImageUrl(img));
   };
 
   const loadRazorpayScript = () => {
@@ -124,7 +167,8 @@ export default function CategoryPage() {
       }
 
       const script = document.createElement("script");
-      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.src =
+        "https://checkout.razorpay.com/v1/checkout.js";
       script.onload = () => resolve(true);
 
       document.body.appendChild(script);
@@ -158,10 +202,14 @@ export default function CategoryPage() {
             phone: customerForm.phone,
             address: customerForm.address,
             items: cart
-              .map((item) => `${item.name} x${item.quantity}`)
+              .map(
+                (item) =>
+                  `${item.name} x${item.quantity}`
+              )
               .join(", "),
             total: getCartTotal(),
-            payment_id: response.razorpay_payment_id,
+            payment_id:
+              response.razorpay_payment_id,
           },
           "gZ3KkN2pXs7YjKieK"
         );
@@ -181,16 +229,24 @@ export default function CategoryPage() {
     let message = "";
 
     if (product) {
-      message = `Hi, I want to buy this product.%0A%0AName: ${product.name}%0APrice: ${product.price}%0ACode: ${product.product_code}`;
+      message =
+        `Hi, I want to buy this product.%0A%0A` +
+        `Name: ${product.name}%0A` +
+        `Price: ${product.price}%0A` +
+        `Code: ${product.product_code}`;
     } else {
       message = `Hi, I want to place an order.%0A%0A${cart
         .map(
           (item) =>
             `${item.name} x${item.quantity} - ₹${
-              parseInt(item.price.replace("₹", "")) * item.quantity
+              parseInt(
+                item.price.replace("₹", "")
+              ) * item.quantity
             }`
         )
-        .join("%0A")}%0A%0ATotal: ₹${getCartTotal()}`;
+        .join(
+          "%0A"
+        )}%0A%0ATotal: ₹${getCartTotal()}`;
     }
 
     window.open(
@@ -209,20 +265,35 @@ export default function CategoryPage() {
         </div>
       )}
 
-      {/* SAME HOMEPAGE HEADER */}
+      {zoomedImage && (
+        <div
+          className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center"
+          onClick={() => setZoomedImage(null)}
+        >
+          <button className="absolute top-6 right-6 bg-white px-4 py-2 rounded-xl">
+            Close
+          </button>
+
+          <Image
+            src={zoomedImage}
+            alt="Zoomed"
+            width={900}
+            height={1200}
+            className="max-h-[90vh] w-auto rounded-2xl"
+          />
+        </div>
+      )}
+
       <div className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b shadow-sm">
         <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-5">
           <div>
             <h1 className="text-3xl font-semibold capitalize">
               {slug.replace("-", " ")}
             </h1>
-            <p className="text-xs text-gray-500 uppercase tracking-[0.3em]">
-              Premium Collection
-            </p>
           </div>
 
           <button
-            onClick={() => setShowCart(true)}
+            onClick={handleCartClick}
             className="relative bg-black text-white px-6 py-3 rounded-full"
           >
             🛍 Cart
@@ -233,15 +304,11 @@ export default function CategoryPage() {
         </div>
       </div>
 
-      {/* PRODUCT CARDS */}
       <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 px-6 py-10">
         {products.map((product) => (
           <div
             key={product.id}
-            onClick={() => {
-              setSelectedProduct(product);
-              setShowDetails(true);
-            }}
+            onClick={() => openDetailsModal(product)}
             className="bg-white rounded-3xl overflow-hidden shadow-lg cursor-pointer"
           >
             {product.images?.[0] && (
@@ -255,8 +322,13 @@ export default function CategoryPage() {
             )}
 
             <div className="p-6">
-              <h2 className="text-xl font-semibold">{product.name}</h2>
-              <p className="text-2xl font-bold mt-3">{product.price}</p>
+              <h2 className="text-xl font-semibold">
+                {product.name}
+              </h2>
+
+              <p className="text-2xl font-bold mt-3">
+                {product.price}
+              </p>
 
               <div className="mt-4 grid grid-cols-4 gap-2">
                 <button
@@ -273,7 +345,7 @@ export default function CategoryPage() {
                   onClick={(e) => {
                     e.stopPropagation();
                     addToCart(product);
-                    setShowCart(true);
+                    handleCartClick();
                   }}
                   className="bg-rose-600 text-white py-3 rounded-2xl text-sm"
                 >
@@ -293,7 +365,7 @@ export default function CategoryPage() {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setShowCart(true);
+                    handleCartClick();
                   }}
                   className="border border-black py-3 rounded-2xl text-sm"
                 >
@@ -305,26 +377,60 @@ export default function CategoryPage() {
         ))}
       </div>
 
-      {/* DETAILS MODAL */}
       {showDetails && selectedProduct && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex justify-center items-center">
-          <div className="bg-white w-[95%] max-w-2xl rounded-3xl p-6">
-            <h2 className="text-2xl font-bold">
-              {selectedProduct.name}
-            </h2>
+        <div className="fixed inset-0 z-50 bg-black/50 flex justify-center items-start pt-4">
+          <div className="bg-white w-[95%] max-w-3xl rounded-3xl p-6 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold">
+                {selectedProduct.name}
+              </h2>
 
-            <p className="mt-3">{selectedProduct.description}</p>
+              <button
+                onClick={() => setShowDetails(false)}
+                className="bg-black text-white px-4 py-2 rounded-xl"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {selectedProduct.images?.map(
+                (img, index) => (
+                  <Image
+                    key={index}
+                    src={getImageUrl(img)}
+                    alt={selectedProduct.name}
+                    width={300}
+                    height={400}
+                    onClick={() =>
+                      openZoomImage(img)
+                    }
+                    className="w-full h-64 object-cover rounded-xl cursor-pointer"
+                  />
+                )
+              )}
+            </div>
+
+            <p className="text-xl font-bold mt-5">
+              Price: {selectedProduct.price}
+            </p>
+
+            <p className="mt-4 text-gray-700">
+              {selectedProduct.description}
+            </p>
 
             <div className="mt-5 grid grid-cols-2 gap-3">
               <button
-                onClick={() => addToCart(selectedProduct)}
+                onClick={() =>
+                  addToCart(selectedProduct)
+                }
                 className="bg-black text-white py-3 rounded-2xl"
               >
                 Add to Cart
               </button>
 
               <button
-                onClick={() => setShowCart(true)}
+                onClick={handleCartClick}
                 className="border border-black py-3 rounded-2xl"
               >
                 Go to Cart
@@ -333,7 +439,7 @@ export default function CategoryPage() {
               <button
                 onClick={() => {
                   addToCart(selectedProduct);
-                  setShowCart(true);
+                  handleCartClick();
                 }}
                 className="bg-rose-600 text-white py-3 rounded-2xl"
               >
@@ -341,7 +447,9 @@ export default function CategoryPage() {
               </button>
 
               <button
-                onClick={() => handleWhatsApp(selectedProduct)}
+                onClick={() =>
+                  handleWhatsApp(selectedProduct)
+                }
                 className="bg-emerald-600 text-white py-3 rounded-2xl"
               >
                 Buy on WhatsApp
@@ -351,28 +459,68 @@ export default function CategoryPage() {
         </div>
       )}
 
-      {/* CART MODAL */}
       {showCart && (
         <div className="fixed inset-0 z-50 bg-black/50 flex justify-center items-center">
-          <div className="bg-white w-[95%] max-w-2xl rounded-3xl p-6">
-            <h2 className="text-2xl font-bold mb-5">Your Cart</h2>
+          <div className="bg-white w-[95%] max-w-2xl rounded-3xl p-6 max-h-[85vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-5">
+              <h2 className="text-2xl font-bold">
+                Your Cart
+              </h2>
+
+              <button
+                onClick={() => setShowCart(false)}
+                className="bg-black text-white px-4 py-2 rounded-xl"
+              >
+                Close
+              </button>
+            </div>
 
             {cart.map((item) => (
-              <div key={item.id} className="flex justify-between py-3 border-b">
+              <div
+                key={item.id}
+                className="flex justify-between border-b py-3"
+              >
                 <div>
                   <p>{item.name}</p>
+
                   <div className="flex gap-3 mt-2">
-                    <button onClick={() => removeFromCart(item.id)}>-</button>
-                    <p>Qty: {item.quantity}</p>
-                    <button onClick={() => increaseCartQuantity(item.id)}>+</button>
+                    <button
+                      onClick={() =>
+                        removeFromCart(item.id)
+                      }
+                    >
+                      -
+                    </button>
+
+                    <p>
+                      Qty: {item.quantity}
+                    </p>
+
+                    <button
+                      onClick={() =>
+                        increaseCartQuantity(
+                          item.id
+                        )
+                      }
+                    >
+                      +
+                    </button>
                   </div>
                 </div>
 
-                <button onClick={() => removeItemRow(item.id)}>🗑️</button>
+                <button
+                  onClick={() =>
+                    removeItemRow(item.id)
+                  }
+                >
+                  🗑️
+                </button>
               </div>
             ))}
 
-            <p className="mt-4 font-bold">Total: ₹{getCartTotal()}</p>
+            <p className="mt-4 font-bold">
+              Total: ₹{getCartTotal()}
+            </p>
 
             <input
               placeholder="Full Name"
@@ -418,7 +566,9 @@ export default function CategoryPage() {
             </button>
 
             <button
-              onClick={() => handleWhatsApp()}
+              onClick={() =>
+                handleWhatsApp()
+              }
               className="mt-3 w-full bg-emerald-600 text-white py-3 rounded-2xl"
             >
               Buy on WhatsApp
