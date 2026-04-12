@@ -398,7 +398,7 @@ const handleBuyNow = async () => {
 
   const paymentObject =
     new window.Razorpay({
-      key: "rzp_live_Sah1IEXfM3UJCg",
+      key: "rzp_test_SayxRYG9e6D0Gv",
       amount:
         totalAmount * 100,
       currency: "INR",
