@@ -200,6 +200,7 @@ export default function CategoryPage() {
           {
             customer_name: customerForm.name,
             phone: customerForm.phone,
+            email: customerForm.email,
             address: customerForm.address,
             items: cart
               .map(
@@ -309,7 +310,7 @@ export default function CategoryPage() {
           <div
             key={product.id}
             onClick={() => openDetailsModal(product)}
-            className="bg-white rounded-3xl overflow-hidden shadow-lg cursor-pointer"
+            className="group bg-white rounded-3xl overflow-hidden shadow-lg cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02]"
           >
             {product.images?.[0] && (
               <Image
@@ -317,7 +318,7 @@ export default function CategoryPage() {
                 alt={product.name}
                 width={400}
                 height={500}
-                className="w-full h-80 object-cover"
+                className="w-full h-80 object-cover transition-transform duration-700 group-hover:scale-105"
               />
             )}
 
@@ -541,6 +542,19 @@ export default function CategoryPage() {
                 setCustomerForm({
                   ...customerForm,
                   phone: e.target.value,
+                })
+              }
+              className="w-full border p-3 rounded-xl mt-3"
+            />
+
+            <input
+              placeholder="Email"
+              type="email"
+              value={customerForm.email}
+              onChange={(e) =>
+                setCustomerForm({
+                  ...customerForm,
+                  email: e.target.value,
                 })
               }
               className="w-full border p-3 rounded-xl mt-3"
