@@ -1273,6 +1273,75 @@ const soldOut =
         </div>
       </div>
 
+      {/* T-Shirt Promo Banner Section */}
+{/* <div className="max-w-7xl mx-auto px-6 pb-10">
+  <div
+    onClick={() => {
+      window.location.href = "/category/tshirt";
+    }}
+    className="relative rounded-[32px] overflow-hidden shadow-2xl cursor-pointer group"
+  >
+
+
+
+
+
+
+    
+    <video
+      autoPlay
+      loop
+      muted
+      playsInline
+      className="w-full h-[220px] md:h-[320px] object-cover group-hover:scale-105 transition-all duration-700"
+    >
+      <source
+        src="/tshirt-banner.mp4"
+        type="video/mp4"
+      />
+    </video>
+    
+
+    <div className="absolute inset-0 bg-black/35 flex items-center justify-center">
+      <div className="text-center text-white px-6">
+        <p className="text-xs tracking-[0.35em] uppercase mb-3">
+          New Drop
+        </p>
+
+        <h2 className="text-3xl md:text-5xl font-semibold">
+          T-Shirts @ ₹150
+        </h2>
+
+        <p className="mt-3 text-sm md:text-base text-white/90">
+          Tap to explore the collection
+        </p>
+      </div>
+    </div>
+  </div>
+</div> */}
+
+
+
+
+{/* T-Shirt Promo Banner */}
+<div className="max-w-7xl mx-auto px-6 pb-10">
+  <div
+    onClick={() => {
+      window.location.href = "/category/tshirt";
+    }}
+    className="relative rounded-[32px] overflow-hidden shadow-2xl cursor-pointer group"
+  >
+    <img
+      src="/ChatGPT Image Apr 13, 2026, 03_08_29 AM.png"
+      alt="Men and Women T-Shirts"
+      className="w-full h-[220px] md:h-[320px] object-cover group-hover:scale-105 transition-all duration-700"
+    />
+
+    {/* Optional stylish dark overlay */}
+    <div className="absolute inset-0 bg-black/10 group-hover:bg-black/5 transition-all duration-500"></div>
+  </div>
+</div>
+
 {/* Shop by Category */}
 <div className="max-w-7xl mx-auto px-6 py-12">
   <p className="text-xs tracking-[0.35em] uppercase text-gray-500 mb-3">
