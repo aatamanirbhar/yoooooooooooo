@@ -1266,7 +1266,7 @@ const soldOut =
               </h2>
 
               <p className="mt-3 text-sm md:text-base text-white/90">
-                Tap to explore the collection
+                Taaaaaaap to explore the collection
               </p>
             </div>
           </div>
