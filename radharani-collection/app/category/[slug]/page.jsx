@@ -141,9 +141,13 @@ const [showCart, setShowCart] = useState(false);
     className="w-full border border-black py-3 rounded-2xl"
   >
     Go to Cart
-  </button>
+    </button>
 </div>
-
+              </div>
+            </div>
+          ))}
+        </div>
+              </div>
     </div>
   );
 }
