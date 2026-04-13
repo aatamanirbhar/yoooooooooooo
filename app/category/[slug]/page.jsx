@@ -461,10 +461,10 @@ export default function CategoryPage() {
                 </button>
               </div>
             </div>
-          </div>
-        )},)}
+                   </div>
+        );
+      })}
       </div>
-
       {showDetails && selectedProduct && (
         <div className="fixed inset-0 z-50 bg-black/50 flex justify-center items-start pt-4">
           <div className="bg-white w-[95%] max-w-3xl rounded-3xl p-6 max-h-[90vh] overflow-y-auto">
