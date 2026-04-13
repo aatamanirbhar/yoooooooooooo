@@ -93,23 +93,43 @@ export default function CategoryPage() {
   };
 
   const addToCart = (product) => {
-    const existing = cart.find((item) => item.id === product.id);
+  const existing = cart.find(
+    (item) => item.id === product.id
+  );
 
-    if (existing) {
-      setCart((prev) =>
-        prev.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        )
-      );
-      showToast("Added to cart");
-      return;
-    }
+  const currentQty = existing?.quantity || 0;
+  const availableStock = Number(product.stock) || 0;
 
-    setCart((prev) => [...prev, { ...product, quantity: 1 }]);
-    showToast("Added to cart");
-  };
+  if (availableStock <= 0) {
+    showToast("Sold Out");
+    return;
+  }
+
+  if (currentQty >= availableStock) {
+    showToast("No more stock available");
+    return;
+  }
+
+  if (existing) {
+    setCart((prev) =>
+      prev.map((item) =>
+        item.id === product.id
+          ? {
+              ...item,
+              quantity: item.quantity + 1,
+            }
+          : item
+      )
+    );
+  } else {
+    setCart((prev) => [
+      ...prev,
+      { ...product, quantity: 1 },
+    ]);
+  }
+
+  showToast("Added to cart");
+};
 
   const removeFromCart = (id) => {
     setCart((prev) =>
@@ -123,15 +143,29 @@ export default function CategoryPage() {
     );
   };
 
-  const increaseCartQuantity = (id) => {
-    setCart((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      )
-    );
-  };
+ const increaseCartQuantity = (id) => {
+  setCart((prev) =>
+    prev.map((item) => {
+      if (item.id !== id) return item;
+
+      const product = products.find(
+        (p) => p.id === id
+      );
+
+      const stock = Number(product?.stock) || 0;
+
+      if (item.quantity >= stock) {
+        showToast("No more stock available");
+        return item;
+      }
+
+      return {
+        ...item,
+        quantity: item.quantity + 1,
+      };
+    })
+  );
+};
 
   const removeItemRow = (id) => {
     setCart((prev) => prev.filter((item) => item.id !== id));
@@ -336,7 +370,13 @@ export default function CategoryPage() {
       </div>
 
       <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 px-6 py-10">
-        {products.map((product) => (
+        {products.map((product) => {
+  const soldOut =
+    (cart.find((item) => item.id === product.id)
+      ?.quantity || 0) >= product.stock ||
+    product.stock <= 0;
+
+  return (
           <div
             key={product.id}
             onClick={() => openDetailsModal(product)}
@@ -362,15 +402,32 @@ export default function CategoryPage() {
               </p>
 
               <div className="mt-4 grid grid-cols-4 gap-2">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    addToCart(product);
-                  }}
-                  className="bg-black text-white py-3 rounded-2xl text-sm"
-                >
-                  Add
-                </button>
+              <button
+  onClick={(e) => {
+    e.stopPropagation();
+
+    const cartQty =
+      cart.find((item) => item.id === product.id)
+        ?.quantity || 0;
+
+    if (
+      cartQty >= product.stock ||
+      product.stock <= 0
+    ) {
+      showToast("Sold Out");
+      return;
+    }
+
+    addToCart(product);
+  }}
+  className="bg-black text-white py-3 rounded-2xl text-sm"
+>
+  {(cart.find((item) => item.id === product.id)
+    ?.quantity || 0) >= product.stock ||
+  product.stock <= 0
+    ? "Sold Out"
+    : "Add to Cart"}
+</button>
 
                 <button
                   onClick={(e) => {
@@ -380,7 +437,7 @@ export default function CategoryPage() {
                   }}
                   className="bg-rose-600 text-white py-3 rounded-2xl text-sm"
                 >
-                  Buy
+                  Buy Now
                 </button>
 
                 <button
@@ -390,7 +447,7 @@ export default function CategoryPage() {
                   }}
                   className="bg-emerald-600 text-white py-3 rounded-2xl text-sm"
                 >
-                  WA
+                  Buy on WhatsApp
                 </button>
 
                 <button
@@ -405,7 +462,7 @@ export default function CategoryPage() {
               </div>
             </div>
           </div>
-        ))}
+        )},)}
       </div>
 
       {showDetails && selectedProduct && (
