@@ -481,23 +481,36 @@ export default function CategoryPage() {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {selectedProduct.images?.map(
-                (img, index) => (
-                  <Image
-                    key={index}
-                    src={getImageUrl(img)}
-                    alt={selectedProduct.name}
-                    width={300}
-                    height={400}
-                    onClick={() =>
-                      openZoomImage(img)
-                    }
-                    className="w-full h-64 object-cover rounded-xl cursor-pointer"
-                  />
-                )
-              )}
-            </div>
+           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+  {selectedProduct.images?.map((img, index) => {
+    const isLastImage =
+      index === selectedProduct.images.length - 1;
+
+    return (
+      <div
+        key={index}
+        className="relative"
+      >
+        {isLastImage && (
+          <div className="absolute top-2 left-2 z-10 bg-black/80 text-white text-xs px-3 py-1 rounded-full">
+            Real Product Image
+          </div>
+        )}
+
+        <Image
+          src={getImageUrl(img)}
+          alt={selectedProduct.name}
+          width={300}
+          height={400}
+          onClick={() =>
+            openZoomImage(img)
+          }
+          className="w-full h-64 object-cover rounded-xl cursor-pointer"
+        />
+      </div>
+    );
+  })}
+</div>
 
             <p className="text-xl font-bold mt-5">
               Price: {selectedProduct.price}
