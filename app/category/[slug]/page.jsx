@@ -9,6 +9,8 @@ import Image from "next/image";
 export default function CategoryPage() {
   const { slug } = useParams();
 
+  const [showSuccess, setShowSuccess] = useState(false);
+
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
   const [toastMessage, setToastMessage] = useState("");
@@ -194,33 +196,61 @@ export default function CategoryPage() {
       name: "Radharani Collection",
 
       handler: async function (response) {
-        await emailjs.send(
-          "service_vpx32br",
-          "template_m4vm0ov",
-          {
-            customer_name: customerForm.name,
-            phone: customerForm.phone,
-            email: customerForm.email,
-            address: customerForm.address,
-            items: cart
-              .map(
-                (item) =>
-                  `${item.name} x${item.quantity}`
-              )
-              .join(", "),
-            total: getCartTotal(),
-            payment_id:
-              response.razorpay_payment_id,
-          },
-          "gZ3KkN2pXs7YjKieK"
-        );
+  // customer confirmation email
+  await emailjs.send(
+    "service_vpx32br",
+    "template_jpgwdz4",
+    {
+      customer_email: customerForm.email,
+      customer_name: customerForm.name,
+      phone: customerForm.phone,
+      address: customerForm.address,
+      total: getCartTotal(),
+      items_html: cart
+        .map(
+          (item) => `
+            <p>
+              ${item.name} x${item.quantity} - ₹${
+                parseInt(item.price.replace("₹", "")) *
+                item.quantity
+              }
+            </p>
+          `
+        )
+        .join(""),
+    },
+    "gZ3KkN2pXs7YjKieK"
+  );
 
-        setCart([]);
-        localStorage.removeItem("cart");
-        setShowCart(false);
+  // admin notification email
+  await emailjs.send(
+    "service_vpx32br",
+    "template_m4vm0ov",
+    {
+      customer_name: customerForm.name,
+      phone: customerForm.phone,
+      email: customerForm.email,
+      address: customerForm.address,
+      items: cart
+        .map(
+          (item) =>
+            `${item.name} x${item.quantity}`
+        )
+        .join(", "),
+      total: getCartTotal(),
+      payment_id: response.razorpay_payment_id,
+    },
+    "gZ3KkN2pXs7YjKieK"
+  );
 
-        showToast("Payment successful");
-      },
+  setCart([]);
+  localStorage.removeItem("cart");
+  setShowCart(false);
+
+  setShowSuccess(true);
+
+  showToast("Order placed successfully");
+},
     });
 
     paymentObject.open();
@@ -590,6 +620,31 @@ export default function CategoryPage() {
           </div>
         </div>
       )}
+
+
+      {showSuccess && (
+  <div className="fixed inset-0 z-[300] bg-black/60 flex items-center justify-center">
+    <div className="bg-white w-[90%] max-w-md rounded-3xl p-8 text-center shadow-2xl">
+      <div className="text-5xl mb-4">✅</div>
+
+      <h2 className="text-2xl font-bold mb-3">
+        Order Placed Successfully
+      </h2>
+
+      <p className="text-gray-600 mb-6">
+        Thank you for shopping with
+        Radharani Collection.
+      </p>
+
+      <button
+        onClick={() => setShowSuccess(false)}
+        className="w-full bg-green-600 text-white py-3 rounded-2xl"
+      >
+        Continue Shopping
+      </button>
+    </div>
+  </div>
+)}
     </div>
   );
 }
