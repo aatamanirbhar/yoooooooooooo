@@ -17,7 +17,11 @@ export default function CategoryPage() {
 
   const [showCart, setShowCart] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+
   const [showDetails, setShowDetails] = useState(false);
+
+  const [selectedSize, setSelectedSize] = useState("");
+const [selectedColor, setSelectedColor] = useState("");
   const [zoomedImage, setZoomedImage] = useState(null);
 
   const [customerForm, setCustomerForm] = useState({
@@ -26,6 +30,8 @@ export default function CategoryPage() {
     email: "",
     address: "",
   });
+
+  
 
   useEffect(() => {
     fetchProducts();
@@ -185,10 +191,12 @@ export default function CategoryPage() {
   };
 
   const openDetailsModal = (product) => {
-    window.history.pushState({}, "");
-    setSelectedProduct(product);
-    setShowDetails(true);
-  };
+  setSelectedSize("");
+  setSelectedColor("");
+  window.history.pushState({}, "");
+  setSelectedProduct(product);
+  setShowDetails(true);
+};
 
   const openZoomImage = (img) => {
     window.history.pushState({}, "");
@@ -519,6 +527,83 @@ export default function CategoryPage() {
             <p className="mt-4 text-gray-700">
               {selectedProduct.description}
             </p>
+
+
+{selectedProduct.video_url && (
+  <div className="mt-6">
+    <p className="font-semibold mb-3">
+      Real Product Video
+    </p>
+
+    <video
+      controls
+      playsInline
+      className="w-full rounded-2xl shadow-lg"
+    >
+      <source
+        src={selectedProduct.video_url}
+        type="video/mp4"
+      />
+    </video>
+  </div>
+)}
+
+
+            <div className="mt-5 space-y-5">
+  {/* Sizes */}
+  {selectedProduct.sizes?.length > 0 && (
+    <div>
+      <p className="font-semibold mb-2">
+        Select Size
+      </p>
+
+      <div className="flex gap-2 flex-wrap">
+        {selectedProduct.sizes.map((size) => (
+          <button
+            key={size}
+            onClick={() =>
+              setSelectedSize(size)
+            }
+            className={`px-4 py-2 rounded-xl border transition-all ${
+              selectedSize === size
+                ? "bg-black text-white"
+                : "bg-white text-black"
+            }`}
+          >
+            {size}
+          </button>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {/* Colors */}
+  {selectedProduct.colors?.length > 0 && (
+    <div>
+      <p className="font-semibold mb-2">
+        Select Color
+      </p>
+
+      <div className="flex gap-2 flex-wrap">
+        {selectedProduct.colors.map((color) => (
+          <button
+            key={color}
+            onClick={() =>
+              setSelectedColor(color)
+            }
+            className={`px-4 py-2 rounded-xl border transition-all ${
+              selectedColor === color
+                ? "bg-black text-white"
+                : "bg-white text-black"
+            }`}
+          >
+            {color}
+          </button>
+        ))}
+      </div>
+    </div>
+  )}
+</div>
 
             <div className="mt-5 grid grid-cols-2 gap-3">
               <button

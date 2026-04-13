@@ -17,6 +17,8 @@ export default function RadharaniCollection() {
   const [showEmptyMessage, setShowEmptyMessage] = useState(false);
 
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedSize, setSelectedSize] = useState("");
+const [selectedColor, setSelectedColor] = useState("");
   const [showDetails, setShowDetails] = useState(false);
   const [zoomedImage, setZoomedImage] = useState(null);
 
@@ -719,6 +721,8 @@ localStorage.removeItem("cart");
             <div
               key={`${product.id}-${index}`}
               onClick={() => {
+                setSelectedSize("");
+setSelectedColor("");
                 setSelectedProduct(product);
                 setShowDetails(true);
               }}
@@ -829,6 +833,81 @@ localStorage.removeItem("cart");
             <p className="mt-4 text-gray-700">
               Description: {selectedProduct.description}
             </p>
+
+            {selectedProduct.video_url && (
+  <div className="mt-6">
+    <p className="font-semibold mb-3">
+      Real Product Video
+    </p>
+
+    <video
+      controls
+      playsInline
+      className="w-full rounded-2xl shadow-lg"
+    >
+      <source
+        src={selectedProduct.video_url}
+        type="video/mp4"
+      />
+    </video>
+  </div>
+)}
+
+            <div className="mt-5 space-y-5">
+  {/* Sizes */}
+  {selectedProduct.sizes?.length > 0 && (
+    <div>
+      <p className="font-semibold mb-2">
+        Select Size
+      </p>
+
+      <div className="flex gap-2 flex-wrap">
+        {selectedProduct.sizes.map((size) => (
+          <button
+            key={size}
+            onClick={() =>
+              setSelectedSize(size)
+            }
+            className={`px-4 py-2 rounded-xl border transition-all ${
+              selectedSize === size
+                ? "bg-black text-white"
+                : "bg-white text-black"
+            }`}
+          >
+            {size}
+          </button>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {/* Colors */}
+  {selectedProduct.colors?.length > 0 && (
+    <div>
+      <p className="font-semibold mb-2">
+        Select Color
+      </p>
+
+      <div className="flex gap-2 flex-wrap">
+        {selectedProduct.colors.map((color) => (
+          <button
+            key={color}
+            onClick={() =>
+              setSelectedColor(color)
+            }
+            className={`px-4 py-2 rounded-xl border transition-all ${
+              selectedColor === color
+                ? "bg-black text-white"
+                : "bg-white text-black"
+            }`}
+          >
+            {color}
+          </button>
+        ))}
+      </div>
+    </div>
+  )}
+</div>
 
              <p className="mt-4 text-gray-700">
               Product Code: {selectedProduct.product_code}
@@ -1126,6 +1205,8 @@ const soldOut =
               key={product.id}
            onClick={() => {
   window.history.pushState({}, "");
+  setSelectedSize("");
+setSelectedColor("");
   setSelectedProduct(product);
   setShowDetails(true);
 }}

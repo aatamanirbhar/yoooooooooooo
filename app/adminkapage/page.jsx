@@ -2,11 +2,20 @@
 
 import { useState } from "react"; import { supabase } from "../../lib/supabase";
 
-export default function AdminPage() { const [form, setForm] = useState({ name: "", price: "", stock: "", description: "",category: "", product_code: "", images: "", });
+export default function AdminPage() { const [form, setForm] = useState({ name: "", price: "", stock: "", description: "",category: "", product_code: "", images: "", sizes: "",video_url: "",
+  colors: "",});
 
 const [deleteCode, setDeleteCode] = useState(""); const [stockCode, setStockCode] = useState(""); const [stockQty, setStockQty] = useState(""); const [stockAction, setStockAction] = useState("add"); const [uploading, setUploading] = useState(false);
 
-const addProduct = async () => { const { error } = await supabase.from("inventory").insert([ { name: form.name, price: Number(form.price), stock: Number(form.stock), category: form.category,description: form.description, product_code: form.product_code, images: form.images ? form.images.split(",").map((img) => img.trim()).filter(Boolean) : [], }, ]);
+const addProduct = async () => { const { error } = await supabase.from("inventory").insert([ { name: form.name, price: Number(form.price), stock: Number(form.stock), category: form.category,description: form.description, product_code: form.product_code, images: form.images
+  ? form.images.split(",").map((img) => img.trim()).filter(Boolean)
+  : [],
+sizes: form.sizes
+  ? form.sizes.split(",").map((size) => size.trim())
+  : [],
+colors: form.colors
+  ? form.colors.split(",").map((color) => color.trim())
+  : [],  video_url: form.video_url,  }, ]);
 
 if (error) {
   alert(error.message);
@@ -22,6 +31,9 @@ setForm({
   category: "",
   product_code: "",
   images: "",
+  sizes: "",
+colors: "",
+video_url: "",
 });
 
 };
@@ -121,6 +133,34 @@ return ( <div className="min-h-screen p-8 max-w-2xl mx-auto space-y-6"> <h1 clas
     <input placeholder="Stock" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} className="w-full border p-3 rounded-xl" />
     <input placeholder="Product Code" value={form.product_code} onChange={(e) => setForm({ ...form, product_code: e.target.value })} className="w-full border p-3 rounded-xl" />
     <textarea placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full border p-3 rounded-xl" />
+      <input
+  placeholder="Real Product Video URL"
+  value={form.video_url}
+  onChange={(e) =>
+    setForm({
+      ...form,
+      video_url: e.target.value,
+    })
+  }
+  className="w-full border p-3 rounded-xl"
+/>
+      <input
+  placeholder="Sizes Available (e.g. S, M, L, XL)"
+  value={form.sizes}
+  onChange={(e) =>
+    setForm({ ...form, sizes: e.target.value })
+  }
+  className="w-full border p-3 rounded-xl"
+/>
+
+<input
+  placeholder="Colors Available (e.g. Black, White, Blue)"
+  value={form.colors}
+  onChange={(e) =>
+    setForm({ ...form, colors: e.target.value })
+  }
+  className="w-full border p-3 rounded-xl"
+/>
     <select
   value={form.category}
   onChange={(e) =>
