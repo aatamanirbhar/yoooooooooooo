@@ -37,7 +37,7 @@ export default function RootLayout({
           राधारानी स्टोर
         </h2>
         <p className="text-sm text-gray-600 mt-3">
-          Premium quality ethnic wear at shop prices.
+          Premium quality clothes at shop prices.
         </p>
       </div>
 
@@ -45,24 +45,48 @@ export default function RootLayout({
         <h3 className="font-semibold mb-3">
           Quick Links
         </h3>
-        <p className="text-sm text-gray-600">
+
+        <a
+  href="/">
+ <p className="text-sm text-gray-600">
           Home
         </p>
-        <p className="text-sm text-gray-600">
+
+ 
+</a>
+       
+        <a href="/#categories">
+   <p className="text-sm text-gray-600">
           Categories
         </p>
-        <p className="text-sm text-gray-600">
+</a>
+      <a
+  href={`${typeof window !== "undefined" ? window.location.pathname : ""}?cart=open`}
+>
+
+  <p className="text-sm text-gray-600">
           Cart
         </p>
+  
+</a>
+      
       </div>
 
       <div>
         <h3 className="font-semibold mb-3">
           Support
         </h3>
-        <p className="text-sm text-gray-600">
+
+        <a
+  href="https://wa.me/919509295882"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+    <p className="text-sm text-gray-600">
           WhatsApp Support
         </p>
+</a>
+      
         <p className="text-sm text-gray-600">
           Secure Payments
         </p>
@@ -81,7 +105,18 @@ export default function RootLayout({
       </div>
     </div>
 
+
+
     <div className="border-t border-gray-100 py-4 text-center text-sm text-gray-500">
+
+      <div className="bg-black text-white overflow-hidden">
+  <div className="whitespace-nowrap py-2 animate-scroll-strip">
+    Delivery charges are extra •
+    Porter / Delhivery charges as per your area •
+    Delivery charges are extra •
+    Porter / Delhivery charges as per your area
+  </div>
+</div>
       © 2026 Radharani Collection
     </div>
   </footer>

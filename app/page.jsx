@@ -4,7 +4,9 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { supabase } from "../lib/supabase";
 
+import { useSearchParams } from "next/navigation";
 export default function RadharaniCollection() {
+  const searchParams = useSearchParams();
 
   const [selectedCategory, setSelectedCategory] = useState("");
 
@@ -29,6 +31,12 @@ const [selectedColor, setSelectedColor] = useState("");
     email: "",
     address: "",
   });
+
+  useEffect(() => {
+  if (searchParams.get("cart") === "open") {
+    setShowCart(true);
+  }
+}, [searchParams]);
 
 useEffect(() => {
   const savedCart =
@@ -73,6 +81,7 @@ useEffect(() => {
   }, []);
 
   useEffect(() => {
+    
   const handleBack = () => {
     if (zoomedImage) {
       setZoomedImage(null);
@@ -731,7 +740,7 @@ localStorage.removeItem("cart");
       {/* Premium Sale Strip */}
 <div className="sticky top-0 z-[60] bg-black text-white overflow-hidden">
   <div className="whitespace-nowrap py-2 text-xs md:text-sm tracking-[0.25em] uppercase animate-scroll-strip">
-    {/* <span className="mx-8">Festive Sale Live</span> */}
+     <span className="mx-8">Follow us on socials to get 10% Off Coupon</span> 
     <span className="mx-8">Free Shipping Above ₹999</span>
     <span className="mx-8">Premium At Shop Prices</span>
     <span className="mx-8">WhatsApp Support Available</span>
@@ -1019,61 +1028,7 @@ setSelectedColor("");
   </div>
 )}
 
-            <div className="mt-5 space-y-5">
-  {/* Sizes */}
-  {selectedProduct.sizes?.length > 0 && (
-    <div>
-      <p className="font-semibold mb-2">
-        Select Size
-      </p>
-
-      <div className="flex gap-2 flex-wrap">
-        {selectedProduct.sizes.map((size) => (
-          <button
-            key={size}
-            onClick={() =>
-              setSelectedSize(size)
-            }
-            className={`px-4 py-2 rounded-xl border transition-all ${
-              selectedSize === size
-                ? "bg-black text-white"
-                : "bg-white text-black"
-            }`}
-          >
-            {size}
-          </button>
-        ))}
-      </div>
-    </div>
-  )}
-
-  {/* Colors */}
-  {selectedProduct.colors?.length > 0 && (
-    <div>
-      <p className="font-semibold mb-2">
-        Select Color
-      </p>
-
-      <div className="flex gap-2 flex-wrap">
-        {selectedProduct.colors.map((color) => (
-          <button
-            key={color}
-            onClick={() =>
-              setSelectedColor(color)
-            }
-            className={`px-4 py-2 rounded-xl border transition-all ${
-              selectedColor === color
-                ? "bg-black text-white"
-                : "bg-white text-black"
-            }`}
-          >
-            {color}
-          </button>
-        ))}
-      </div>
-    </div>
-  )}
-</div>
+            
 
              <p className="mt-4 text-gray-700">
               Product Code: {selectedProduct.product_code}
@@ -1666,7 +1621,7 @@ className="w-full h-[400px] md:h-[520px] object-cover group-hover:scale-105 tran
 </div>
 
 {/* Shop by Category */}
-<div className="max-w-7xl mx-auto px-6 py-12">
+<div id="categories" className="max-w-7xl mx-auto px-6 py-12">
   <p className="text-xs tracking-[0.35em] uppercase text-gray-500 mb-3">
     Shop by Category
   </p>

@@ -1,13 +1,14 @@
 "use client";
 
 import emailjs from "@emailjs/browser";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabase";
 import Image from "next/image";
 
 export default function CategoryPage() {
   const { slug } = useParams();
+  const searchParams = useSearchParams();
 
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -31,7 +32,11 @@ const [selectedColor, setSelectedColor] = useState("");
     address: "",
   });
 
-  
+  useEffect(() => {
+  if (searchParams.get("cart") === "open") {
+    setShowCart(true);
+  }
+}, [searchParams]);
 
   useEffect(() => {
     fetchProducts();
@@ -262,6 +267,31 @@ const [selectedColor, setSelectedColor] = useState("");
       
 
       handler: async function (response) {
+
+  for (const item of cart) {
+    const product = products.find(
+      (p) => p.id === item.id
+    );
+
+    if (!product) continue;
+
+    const currentStock =
+      Number(product.stock) || 0;
+
+    const newStock = Math.max(
+      currentStock - item.quantity,
+      0
+    );
+
+    await supabase
+      .from("inventory")
+      .update({
+        stock: newStock,
+      })
+      .eq("id", item.id);
+  }
+
+  await fetchProducts(); {
   // customer confirmation email
   await emailjs.send(
     "service_vpx32br",
@@ -391,8 +421,8 @@ const [selectedColor, setSelectedColor] = useState("");
   setShowSuccess(true);
 
   showToast("Order placed successfully");
-},
-    });
+}
+    },})
 
     paymentObject.open();
   };
