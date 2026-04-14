@@ -130,36 +130,47 @@ useEffect(() => {
   };
 
   const addToCart = (product) => {
-  if (product.stock <= 0) {
-    showToast("Sold out");
+  const existing = cart.find(
+    (item) =>
+      item.id === product.id &&
+      item.selectedSize === product.selectedSize &&
+      item.selectedColor === product.selectedColor
+  );
+
+  const totalQtyOfProduct = cart
+    .filter((item) => item.id === product.id)
+    .reduce(
+      (sum, item) => sum + item.quantity,
+      0
+    );
+
+  const availableStock =
+    Number(product.stock) || 0;
+
+  if (totalQtyOfProduct >= availableStock) {
+    showToast("No more stock available");
     return;
   }
 
-  setCart((prev) => {
-    const existing = prev.find(
-      (item) => item.id === product.id
-    );
-
-    if (existing) {
-      return prev.map((item) =>
-        item.id === product.id
+  if (existing) {
+    setCart((prev) =>
+      prev.map((item) =>
+        item.id === product.id &&
+        item.selectedSize === product.selectedSize &&
+        item.selectedColor === product.selectedColor
           ? {
               ...item,
-              quantity:
-                item.quantity + 1,
+              quantity: item.quantity + 1,
             }
           : item
-      );
-    }
-
-    return [
+      )
+    );
+  } else {
+    setCart((prev) => [
       ...prev,
-      {
-        ...product,
-        quantity: 1,
-      },
-    ];
-  });
+      { ...product, quantity: 1 },
+    ]);
+  }
 
   showToast("Added to cart");
 };
@@ -213,14 +224,21 @@ const increaseCartQuantity = (id) => {
   );
 };
 
-const removeItemRow = (id) => {
+const removeItemRow = (
+  id,
+  selectedSize,
+  selectedColor
+) => {
   setCart((prev) =>
     prev.filter(
-      (item) => item.id !== id
+      (item) =>
+        !(
+          item.id === id &&
+          item.selectedSize === selectedSize &&
+          item.selectedColor === selectedColor
+        )
     )
   );
-
-  showToast("Item removed");
 };
 
  const handleCartClick = () => {
@@ -1104,7 +1122,11 @@ setSelectedColor("");
   <div className="flex items-center gap-3 mt-2">
     <button
       onClick={() =>
-        removeFromCart(item.id)
+        removeFromCart(
+  item.id,
+  item.selectedSize,
+  item.selectedColor
+)
       }
       className="w-10 h-10 flex items-center justify-center bg-white border border-gray-200 text-black rounded-2xl shadow-sm hover:shadow-md hover:scale-105 transition-all"
     >
@@ -1115,9 +1137,11 @@ setSelectedColor("");
 
     <button
       onClick={() =>
-        increaseCartQuantity(
-          item.id
-        )
+       increaseCartQuantity(
+  item.id,
+  item.selectedSize,
+  item.selectedColor
+)
       }
       className="w-10 h-10 flex items-center justify-center bg-black text-white rounded-2xl shadow-sm hover:shadow-md hover:scale-105 transition-all"
     >
@@ -1134,9 +1158,13 @@ setSelectedColor("");
 </div>
 
                <button
-  onClick={() =>
-    removeItemRow(item.id)
-  }
+onClick={() =>
+  removeItemRow(
+    item.id,
+    item.selectedSize,
+    item.selectedColor
+  )
+}
   className="w-10 h-10 flex items-center justify-center bg-white border border-gray-200 text-red-500 rounded-2xl shadow-sm hover:bg-red-50 hover:scale-105 transition-all"
 >
   🗑️

@@ -98,20 +98,25 @@ const [selectedColor, setSelectedColor] = useState("");
     setTimeout(() => setToastMessage(""), 1200);
   };
 
-  const addToCart = (product) => {
+ const addToCart = (product) => {
   const existing = cart.find(
-    (item) => item.id === product.id
+    (item) =>
+      item.id === product.id &&
+      item.selectedSize === product.selectedSize &&
+      item.selectedColor === product.selectedColor
   );
 
-  const currentQty = existing?.quantity || 0;
-  const availableStock = Number(product.stock) || 0;
+  const totalQtyOfProduct = cart
+    .filter((item) => item.id === product.id)
+    .reduce(
+      (sum, item) => sum + item.quantity,
+      0
+    );
 
-  if (availableStock <= 0) {
-    showToast("Sold Out");
-    return;
-  }
+  const availableStock =
+    Number(product.stock) || 0;
 
-  if (currentQty >= availableStock) {
+  if (totalQtyOfProduct >= availableStock) {
     showToast("No more stock available");
     return;
   }
@@ -119,7 +124,9 @@ const [selectedColor, setSelectedColor] = useState("");
   if (existing) {
     setCart((prev) =>
       prev.map((item) =>
-        item.id === product.id
+        item.id === product.id &&
+        item.selectedSize === product.selectedSize &&
+        item.selectedColor === product.selectedColor
           ? {
               ...item,
               quantity: item.quantity + 1,
@@ -136,6 +143,7 @@ const [selectedColor, setSelectedColor] = useState("");
 
   showToast("Added to cart");
 };
+
 
   const removeFromCart = (id) => {
     setCart((prev) =>
@@ -173,9 +181,22 @@ const [selectedColor, setSelectedColor] = useState("");
   );
 };
 
-  const removeItemRow = (id) => {
-    setCart((prev) => prev.filter((item) => item.id !== id));
-  };
+  const removeItemRow = (
+  id,
+  selectedSize,
+  selectedColor
+) => {
+  setCart((prev) =>
+    prev.filter(
+      (item) =>
+        !(
+          item.id === id &&
+          item.selectedSize === selectedSize &&
+          item.selectedColor === selectedColor
+        )
+    )
+  );
+};
 
   const getCartTotal = () =>
     cart.reduce(
@@ -666,7 +687,11 @@ const [selectedColor, setSelectedColor] = useState("");
 
               <button
                 onClick={() =>
-                  handleWhatsApp(selectedProduct)
+                  handleWhatsApp({
+  ...selectedProduct,
+  selectedSize,
+  selectedColor,
+})
                 }
                 className="bg-emerald-600 text-white py-3 rounded-2xl"
               >
@@ -695,7 +720,7 @@ const [selectedColor, setSelectedColor] = useState("");
 
             {cart.map((item) => (
               <div
-                key={item.id}
+                key={`${item.id}-${item.selectedSize}-${item.selectedColor}`}
                 className="flex justify-between border-b py-3"
               >
                 <div>
@@ -713,7 +738,11 @@ const [selectedColor, setSelectedColor] = useState("");
                   <div className="flex gap-3 mt-2">
                     <button
                       onClick={() =>
-                        removeFromCart(item.id)
+                        removeFromCart(
+  item.id,
+  item.selectedSize,
+  item.selectedColor
+)
                       }
                     >
                       -
@@ -725,9 +754,11 @@ const [selectedColor, setSelectedColor] = useState("");
 
                     <button
                       onClick={() =>
-                        increaseCartQuantity(
-                          item.id
-                        )
+                       increaseCartQuantity(
+  item.id,
+  item.selectedSize,
+  item.selectedColor
+)
                       }
                     >
                       +
@@ -736,9 +767,13 @@ const [selectedColor, setSelectedColor] = useState("");
                 </div>
 
                 <button
-                  onClick={() =>
-                    removeItemRow(item.id)
-                  }
+               onClick={() =>
+  removeItemRow(
+    item.id,
+    item.selectedSize,
+    item.selectedColor
+  )
+}
                 >
                   🗑️
                 </button>
