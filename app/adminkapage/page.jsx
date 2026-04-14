@@ -5,7 +5,68 @@ import { useState } from "react"; import { supabase } from "../../lib/supabase";
 export default function AdminPage() { const [form, setForm] = useState({ name: "", price: "", stock: "", description: "",category: "", product_code: "", images: "", sizes: "",video_url: "",
   colors: "",});
 
+  const [couponForm, setCouponForm] = useState({
+  code: "",
+  discount_type: "percent",
+  discount_value: "",
+  min_order: "",
+});
+
+const [coupons, setCoupons] = useState([]);
+
 const [deleteCode, setDeleteCode] = useState(""); const [stockCode, setStockCode] = useState(""); const [stockQty, setStockQty] = useState(""); const [stockAction, setStockAction] = useState("add"); const [uploading, setUploading] = useState(false);
+
+useEffect(() => {
+  fetchCoupons();
+}, []);
+
+
+const addCoupon = async () => {
+  const { error } = await supabase
+    .from("coupons")
+    .insert([
+      {
+        code: couponForm.code.toUpperCase(),
+        discount_type:
+          couponForm.discount_type,
+        discount_value: Number(
+          couponForm.discount_value
+        ),
+        min_order: Number(
+          couponForm.min_order
+        ),
+        active: true,
+      },
+    ]);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  setCouponForm({
+    code: "",
+    discount_type: "percent",
+    discount_value: "",
+    min_order: "",
+  });
+
+  fetchCoupons();
+};
+
+const deleteCouponByName = async (code) => {
+  const { error } = await supabase
+    .from("coupons")
+    .delete()
+    .eq("code", code.toUpperCase());
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  fetchCoupons();
+};
 
 const addProduct = async () => { const { error } = await supabase.from("inventory").insert([ { name: form.name, price: Number(form.price), stock: Number(form.stock), category: form.category,description: form.description, product_code: form.product_code, images: form.images
   ? form.images.split(",").map((img) => img.trim()).filter(Boolean)
@@ -36,6 +97,18 @@ colors: "",
 video_url: "",
 });
 
+};
+
+
+const fetchCoupons = async () => {
+  const { data, error } = await supabase
+    .from("coupons")
+    .select("*")
+    .order("id", { ascending: false });
+
+  if (!error) {
+    setCoupons(data || []);
+  }
 };
 
 const deleteProductByCode = async () => { if (!deleteCode.trim()) { alert("Enter product code"); return; }
@@ -247,6 +320,103 @@ return ( <div className="min-h-screen p-8 max-w-2xl mx-auto space-y-6"> <h1 clas
     </select>
     <button onClick={updateStockByCode} className="w-full bg-blue-600 text-white py-3 rounded-xl">Update Stock</button>
   </div>
+
+
+<div className="mt-10 bg-white rounded-3xl p-6 shadow-lg">
+  <h2 className="text-2xl font-bold mb-5">
+    Coupon Manager
+  </h2>
+
+  <input
+    placeholder="Coupon Code"
+    value={couponForm.code}
+    onChange={(e) =>
+      setCouponForm({
+        ...couponForm,
+        code: e.target.value,
+      })
+    }
+    className="w-full border p-3 rounded-xl mb-3"
+  />
+
+  <select
+    value={couponForm.discount_type}
+    onChange={(e) =>
+      setCouponForm({
+        ...couponForm,
+        discount_type: e.target.value,
+      })
+    }
+    className="w-full border p-3 rounded-xl mb-3"
+  >
+    <option value="percent">
+      Percent
+    </option>
+    <option value="flat">
+      Flat
+    </option>
+  </select>
+
+  <input
+    placeholder="Discount Value"
+    value={couponForm.discount_value}
+    onChange={(e) =>
+      setCouponForm({
+        ...couponForm,
+        discount_value: e.target.value,
+      })
+    }
+    className="w-full border p-3 rounded-xl mb-3"
+  />
+
+  <input
+    placeholder="Minimum Order"
+    value={couponForm.min_order}
+    onChange={(e) =>
+      setCouponForm({
+        ...couponForm,
+        min_order: e.target.value,
+      })
+    }
+    className="w-full border p-3 rounded-xl mb-3"
+  />
+
+  <button
+    onClick={addCoupon}
+    className="w-full bg-black text-white py-3 rounded-2xl"
+  >
+    Add Coupon
+  </button>
+
+  <div className="mt-6 space-y-3">
+    {coupons.map((coupon) => (
+      <div
+        key={coupon.id}
+        className="border rounded-2xl p-4 flex justify-between"
+      >
+        <div>
+          <p className="font-bold">
+            {coupon.code}
+          </p>
+          <p>
+            {coupon.discount_type} - ₹
+            {coupon.discount_value}
+          </p>
+        </div>
+
+        <button
+          onClick={() =>
+            deleteCoupon(coupon.id)
+          }
+          className="text-red-600"
+        >
+          Delete
+        </button>
+      </div>
+    ))}
+  </div>
+</div>
+
 </div>
 
 ); }

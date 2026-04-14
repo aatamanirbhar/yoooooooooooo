@@ -12,6 +12,9 @@ export default function RadharaniCollection() {
 
   const [showSuccess, setShowSuccess] =
   useState(false);
+  const [couponCode, setCouponCode] = useState("");
+const [discount, setDiscount] = useState(0);
+const [finalTotal, setFinalTotal] = useState(0);
   const [reviews, setReviews] = useState([]);
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
@@ -32,6 +35,49 @@ const [selectedColor, setSelectedColor] = useState("");
     address: "",
   });
 
+  
+
+  const applyCoupon = async () => {
+  const total = getCartTotal();
+
+  const { data, error } = await supabase
+    .from("coupons")
+    .select("*")
+    .eq("code", couponCode.toUpperCase())
+    .eq("active", true)
+    .single();
+
+  if (error || !data) {
+    setDiscount(0);
+    setFinalTotal(total);
+    showToast("Invalid coupon");
+    return;
+  }
+
+  if (total < data.min_order) {
+    showToast(
+      `Minimum order ₹${data.min_order}`
+    );
+    return;
+  }
+
+  let discountAmount = 0;
+
+  if (data.discount_type === "percent") {
+    discountAmount = Math.floor(
+      total * (data.discount_value / 100)
+    );
+  } else {
+    discountAmount = data.discount_value;
+  }
+
+  setDiscount(discountAmount);
+  setFinalTotal(total - discountAmount);
+
+  showToast("Coupon applied");
+};
+
+  
   useEffect(() => {
   if (searchParams.get("cart") === "open") {
     setShowCart(true);
@@ -80,6 +126,9 @@ useEffect(() => {
     };
   }, []);
 
+
+
+
   useEffect(() => {
     
   const handleBack = () => {
@@ -101,10 +150,14 @@ useEffect(() => {
 
   window.addEventListener("popstate", handleBack);
 
+  
+
   return () => {
     window.removeEventListener("popstate", handleBack);
   };
 }, [zoomedImage, showDetails, showCart]);
+
+
 
 
   const fetchProducts = async () => {
@@ -159,6 +212,8 @@ useEffect(() => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(""), 1200);
   };
+
+
 
   const addToCart = (product) => {
   const existing = cart.find(
@@ -387,7 +442,7 @@ const handleBuyNow = async () => {
   }
 
   const totalAmount =
-    getCartTotal();
+  finalTotal || getCartTotal();
 
  const { data, error } =
   await supabase
@@ -589,7 +644,36 @@ const handleBuyNow = async () => {
       </div>
     `
   )
-  .join("");
+  .join("") +
+  `
+    <div style="
+      margin-top:18px;
+      padding:16px;
+      border:1px solid #ececec;
+      border-radius:18px;
+      background:#fff;
+      box-shadow:0 2px 8px rgba(0,0,0,0.04);
+    ">
+      <p style="
+        margin:0;
+        font-size:16px;
+        color:#666;
+      ">
+        Discount: ₹${discount}
+      </p>
+
+      <p style="
+        margin:8px 0 0 0;
+        font-size:20px;
+        font-weight:700;
+        color:#111;
+      ">
+        Final Total: ₹${
+          finalTotal || getCartTotal()
+        }
+      </p>
+    </div>
+  `;
 
 
 
@@ -607,6 +691,9 @@ await emailjs.send(
       customerForm.address,
     total:
       getCartTotal(),
+      discount: discount,
+final_total: finalTotal || getCartTotal(),
+
     items_html:
       itemsamanHtml,
   },
@@ -639,6 +726,8 @@ await emailjs.send(
       )
       .join(", "),
     total: getCartTotal(),
+     discount: discount,
+final_total: finalTotal || getCartTotal(),
     payment_id:
       response.razorpay_payment_id,
   },
@@ -691,7 +780,9 @@ showToast(
     )
     .join(
       "%0A"
-    )}%0A%0ATotal: ₹${getCartTotal()}%0A%0AName: ${customerForm.name}%0APhone: ${customerForm.phone}%0AAddress: ${customerForm.address}`;
+    )}%0A%0ATotal: ₹${getCartTotal()}%0ADiscount: ₹${discount}%0AFinal Total: ₹${finalTotal || getCartTotal()}%0A%0AName: ${customerForm.name}%0APhone: ${customerForm.phone}%0AAddress: ${customerForm.address}`;
+
+
 
   setCart([]);
   
@@ -1279,6 +1370,33 @@ onClick={() =>
                 className="w-full border p-3 rounded-xl"
               />
             </div>
+
+            
+<input
+  placeholder="Enter coupon code"
+  value={couponCode}
+  onChange={(e) =>
+    setCouponCode(e.target.value)
+  }
+  className="w-full border p-3 rounded-xl mt-3"
+/>
+
+<button
+  onClick={applyCoupon}
+  className="mt-2 w-full bg-gray-200 py-3 rounded-xl"
+>
+  Apply Coupon
+</button>
+
+<p className="mt-3">
+  Discount: ₹{discount}
+</p>
+
+<p className="font-bold">
+  Final Total: ₹
+  {finalTotal || getCartTotal()}
+</p>
+
 
             <button
               onClick={handleBuyNow}

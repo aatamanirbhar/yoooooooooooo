@@ -11,7 +11,9 @@ export default function CategoryPage() {
   const searchParams = useSearchParams();
 
   const [showSuccess, setShowSuccess] = useState(false);
-
+const [couponCode, setCouponCode] = useState("");
+const [discount, setDiscount] = useState(0);
+const [finalTotal, setFinalTotal] = useState(0);
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
   const [toastMessage, setToastMessage] = useState("");
@@ -31,6 +33,48 @@ const [selectedColor, setSelectedColor] = useState("");
     email: "",
     address: "",
   });
+
+  
+
+const applyCoupon = async () => {
+  const total = getCartTotal();
+
+  const { data, error } = await supabase
+    .from("coupons")
+    .select("*")
+    .eq("code", couponCode.toUpperCase())
+    .eq("active", true)
+    .single();
+
+  if (error || !data) {
+    setDiscount(0);
+    setFinalTotal(total);
+    showToast("Invalid coupon");
+    return;
+  }
+
+  if (total < data.min_order) {
+    showToast(
+      `Minimum order ₹${data.min_order}`
+    );
+    return;
+  }
+
+  let discountAmount = 0;
+
+  if (data.discount_type === "percent") {
+    discountAmount = Math.floor(
+      total * (data.discount_value / 100)
+    );
+  } else {
+    discountAmount = data.discount_value;
+  }
+
+  setDiscount(discountAmount);
+  setFinalTotal(total - discountAmount);
+
+  showToast("Coupon applied");
+};
 
   useEffect(() => {
   if (searchParams.get("cart") === "open") {
@@ -102,6 +146,8 @@ const [selectedColor, setSelectedColor] = useState("");
     setToastMessage(msg);
     setTimeout(() => setToastMessage(""), 1200);
   };
+
+  
 
  const addToCart = (product) => {
   const existing = cart.find(
@@ -259,7 +305,8 @@ const [selectedColor, setSelectedColor] = useState("");
 
     const paymentObject = new window.Razorpay({
       key: "rzp_live_Sah1IEXfM3UJCg",
-      amount: getCartTotal() * 100,
+      amount:
+  (finalTotal || getCartTotal()) * 100,
       currency: "INR",
       name: "Radharani Collection",
 
@@ -379,7 +426,33 @@ const [selectedColor, setSelectedColor] = useState("");
       </div>
     `
   )
-  .join(""),
+  .join("") +  <div style="
+      margin-top:18px;
+      padding:16px;
+      border:1px solid #ececec;
+      border-radius:18px;
+      background:#fff;
+      box-shadow:0 2px 8px rgba(0,0,0,0.04);
+    ">
+      <p style="
+        margin:0;
+        font-size:16px;
+        color:#666;
+      ">
+        Discount: ₹${discount}
+      </p>
+
+      <p style="
+        margin:8px 0 0 0;
+        font-size:20px;
+        font-weight:700;
+        color:#111;
+      ">
+        Final Total: ₹${
+          finalTotal || getCartTotal()
+        }
+      </p>
+    </div>,
 
     },
     "gZ3KkN2pXs7YjKieK"
@@ -408,7 +481,9 @@ const [selectedColor, setSelectedColor] = useState("");
 } x${item.quantity}`
         )
         .join(", "),
-      total: getCartTotal(),
+       total: getCartTotal(),
+     discount: discount,
+final_total: finalTotal || getCartTotal(),
       payment_id: response.razorpay_payment_id,
     },
     "gZ3KkN2pXs7YjKieK"
@@ -456,8 +531,12 @@ const [selectedColor, setSelectedColor] = useState("");
         )
         .join(
           "%0A"
-        )}%0A%0ATotal: ₹${getCartTotal()}`;
+        )}%0A%0ATotal: ₹${getCartTotal()}%0A%0ADiscount: ₹${discount}%0A%0AFinalTotal: ₹${finalTotal || getCartTotal()}`;
     }
+
+        
+
+
 
     window.open(
       `https://wa.me/919509295882?text=${message}`,
@@ -588,6 +667,8 @@ const soldOut =
     ? "Sold Out"
     : "Add to Cart"}
 </button>
+
+
 
                 <button
                   onClick={(e) => {
@@ -939,6 +1020,32 @@ const soldOut =
               }
               className="w-full border p-3 rounded-xl mt-3"
             />
+
+<input
+  placeholder="Enter coupon code"
+  value={couponCode}
+  onChange={(e) =>
+    setCouponCode(e.target.value)
+  }
+  className="w-full border p-3 rounded-xl mt-3"
+/>
+
+<button
+  onClick={applyCoupon}
+  className="mt-2 w-full bg-gray-200 py-3 rounded-xl"
+>
+  Apply Coupon
+</button>
+
+<p className="mt-3">
+  Discount: ₹{discount}
+</p>
+
+<p className="font-bold">
+  Final Total: ₹
+  {finalTotal || getCartTotal()}
+</p>
+  
 
             <button
               onClick={handleBuyNow}
