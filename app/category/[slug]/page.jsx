@@ -486,17 +486,26 @@ const [selectedColor, setSelectedColor] = useState("");
 
       <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 px-6 py-10">
         {products.map((product) => {
-  const soldOut =
-    (cart.find((item) => item.id === product.id)
-      ?.quantity || 0) >= product.stock ||
-    product.stock <= 0;
+  const stock = Number(product.stock) || 0;
+
+const soldOut =
+  stock <= 0 ||
+  (cart.find((item) => item.id === product.id)
+    ?.quantity || 0) >= stock;
 
   return (
-          <div
-            key={product.id}
-            onClick={() => openDetailsModal(product)}
-            className="group bg-white rounded-3xl overflow-hidden shadow-lg cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02]"
-          >
+         <div
+  key={product.id}
+  onClick={() =>
+    !soldOut &&
+    openDetailsModal(product)
+  }
+  className={`relative group bg-white rounded-3xl overflow-hidden shadow-lg transition-all duration-500 ${
+    soldOut
+      ? "opacity-50 grayscale cursor-not-allowed"
+      : "cursor-pointer hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02]"
+  }`}
+>
             {product.images?.[0] && (
               <Image
                 src={getImageUrl(product.images[0])}
@@ -506,6 +515,12 @@ const [selectedColor, setSelectedColor] = useState("");
                 className="w-full h-80 object-cover transition-transform duration-700 group-hover:scale-105"
               />
             )}
+
+            {soldOut && (
+  <div className="absolute top-3 right-3 bg-black text-white px-3 py-1 rounded-full text-xs font-medium z-10">
+    Sold Out
+  </div>
+)}
 
             <div className="p-6">
               <h2 className="text-xl font-semibold">
