@@ -258,6 +258,9 @@ const [selectedColor, setSelectedColor] = useState("");
       currency: "INR",
       name: "Radharani Collection",
 
+
+      
+
       handler: async function (response) {
   // customer confirmation email
   await emailjs.send(
@@ -270,25 +273,84 @@ const [selectedColor, setSelectedColor] = useState("");
       address: customerForm.address,
       total: getCartTotal(),
       items_html: cart
-        .map(
-          (item) => `
-            <p>
-              ${item.name}${
-  item.selectedSize
-    ? ` (Size: ${item.selectedSize})`
-    : ""
-}${
-  item.selectedColor
-    ? ` | Color: ${item.selectedColor}`
-    : ""
-} x${item.quantity} - ₹${
-                parseInt(item.price.replace("₹", "")) *
-                item.quantity
+  .map(
+    (item) => `
+      <div style="
+        margin-bottom:18px;
+        padding:16px;
+        border:1px solid #ececec;
+        border-radius:18px;
+        background:#fafafa;
+        box-shadow:0 2px 8px rgba(0,0,0,0.04);
+      ">
+        <table style="width:100%; border-collapse:collapse;">
+          <tr>
+            <td style="width:90px; vertical-align:top;">
+              <img
+                src="${getImageUrl(item.images[0])}"
+                width="80"
+                height="100"
+                style="
+                  width:80px;
+                  height:100px;
+                  object-fit:cover;
+                  border-radius:12px;
+                  display:block;
+                "
+              />
+            </td>
+
+            <td style="vertical-align:top; padding-left:14px;">
+              <p style="
+                margin:0;
+                font-size:18px;
+                font-weight:700;
+                color:#111;
+                line-height:1.35;
+              ">
+                ${item.name}
+              </p>
+
+              ${
+                item.selectedSize
+                  ? `<p style="margin:6px 0 0 0; font-size:14px; color:#666;">Size: ${item.selectedSize}</p>`
+                  : ""
               }
-            </p>
-          `
-        )
-        .join(""),
+
+              ${
+                item.selectedColor
+                  ? `<p style="margin:4px 0 0 0; font-size:14px; color:#666;">Color: ${item.selectedColor}</p>`
+                  : ""
+              }
+
+              <p style="
+                margin:8px 0 0 0;
+                font-size:14px;
+                color:#666;
+              ">
+                Quantity: ${item.quantity}
+              </p>
+
+              <p style="
+                margin:8px 0 0 0;
+                font-size:18px;
+                font-weight:700;
+                color:#111;
+              ">
+                ₹${
+                  parseInt(
+                    item.price.replace("₹", "")
+                  ) * item.quantity
+                }
+              </p>
+            </td>
+          </tr>
+        </table>
+      </div>
+    `
+  )
+  .join(""),
+
     },
     "gZ3KkN2pXs7YjKieK"
   );

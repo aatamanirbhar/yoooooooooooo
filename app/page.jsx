@@ -503,7 +503,7 @@ const handleBuyNow = async () => {
   .join("");
 
 
-  const itemsamanHtml = cart
+  const itemsamanHtml =  cart
   .map(
     (item) => `
       <div style="
@@ -542,8 +542,20 @@ const handleBuyNow = async () => {
                 ${item.name}
               </p>
 
+              ${
+                item.selectedSize
+                  ? `<p style="margin:6px 0 0 0; font-size:14px; color:#666;">Size: ${item.selectedSize}</p>`
+                  : ""
+              }
+
+              ${
+                item.selectedColor
+                  ? `<p style="margin:4px 0 0 0; font-size:14px; color:#666;">Color: ${item.selectedColor}</p>`
+                  : ""
+              }
+
               <p style="
-                margin:10px 0 0 0;
+                margin:8px 0 0 0;
                 font-size:14px;
                 color:#666;
               ">
@@ -558,10 +570,7 @@ const handleBuyNow = async () => {
               ">
                 ₹${
                   parseInt(
-                    item.price.replace(
-                      "₹",
-                      ""
-                    )
+                    item.price.replace("₹", "")
                   ) * item.quantity
                 }
               </p>
@@ -572,6 +581,8 @@ const handleBuyNow = async () => {
     `
   )
   .join("");
+
+
 
 await emailjs.send(
   "service_vpx32br",
@@ -603,6 +614,7 @@ await emailjs.send(
       customerForm.phone,
     address:
       customerForm.address,
+      email:customerForm.email,
     items: cart
       .map(
         (item) =>
