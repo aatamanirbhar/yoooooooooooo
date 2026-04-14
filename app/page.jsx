@@ -1326,7 +1326,7 @@ setSelectedColor("");
 >
   <span className="text-lg">💬</span>
   <span className="font-medium">
-    Chat Now On Whatsapp Now
+    Chat Now
   </span>
 </a>
 
