@@ -252,7 +252,15 @@ const [selectedColor, setSelectedColor] = useState("");
         .map(
           (item) => `
             <p>
-              ${item.name} x${item.quantity} - ₹${
+              ${item.name}${
+  item.selectedSize
+    ? ` (Size: ${item.selectedSize})`
+    : ""
+}${
+  item.selectedColor
+    ? ` | Color: ${item.selectedColor}`
+    : ""
+} x${item.quantity} - ₹${
                 parseInt(item.price.replace("₹", "")) *
                 item.quantity
               }
@@ -276,7 +284,15 @@ const [selectedColor, setSelectedColor] = useState("");
       items: cart
         .map(
           (item) =>
-            `${item.name} x${item.quantity}`
+            `${item.name}${
+  item.selectedSize
+    ? ` (Size: ${item.selectedSize})`
+    : ""
+}${
+  item.selectedColor
+    ? ` | Color: ${item.selectedColor}`
+    : ""
+} x${item.quantity}`
         )
         .join(", "),
       total: getCartTotal(),
@@ -311,7 +327,15 @@ const [selectedColor, setSelectedColor] = useState("");
       message = `Hi, I want to place an order.%0A%0A${cart
         .map(
           (item) =>
-            `${item.name} x${item.quantity} - ₹${
+            `${item.name}${
+  item.selectedSize
+    ? ` (Size: ${item.selectedSize})`
+    : ""
+}${
+  item.selectedColor
+    ? ` | Color: ${item.selectedColor}`
+    : ""
+} x${item.quantity} - ₹${
               parseInt(
                 item.price.replace("₹", "")
               ) * item.quantity
@@ -607,9 +631,13 @@ const [selectedColor, setSelectedColor] = useState("");
 
             <div className="mt-5 grid grid-cols-2 gap-3">
               <button
-                onClick={() =>
-                  addToCart(selectedProduct)
-                }
+               onClick={() =>
+  addToCart({
+    ...selectedProduct,
+    selectedSize,
+    selectedColor,
+  })
+}
                 className="bg-black text-white py-3 rounded-2xl"
               >
                 Add to Cart
@@ -623,10 +651,14 @@ const [selectedColor, setSelectedColor] = useState("");
               </button>
 
               <button
-                onClick={() => {
-                  addToCart(selectedProduct);
-                  handleCartClick();
-                }}
+              onClick={() => {
+  addToCart({
+    ...selectedProduct,
+    selectedSize,
+    selectedColor,
+  });
+  handleCartClick();
+}}
                 className="bg-rose-600 text-white py-3 rounded-2xl"
               >
                 Buy Now
@@ -668,6 +700,15 @@ const [selectedColor, setSelectedColor] = useState("");
               >
                 <div>
                   <p>{item.name}</p>
+
+                  {(item.selectedSize || item.selectedColor) && (
+  <p className="text-sm text-gray-500">
+    {item.selectedSize &&
+      `Size: ${item.selectedSize}`}
+    {item.selectedColor &&
+      ` | Color: ${item.selectedColor}`}
+  </p>
+)}
 
                   <div className="flex gap-3 mt-2">
                     <button

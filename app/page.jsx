@@ -108,15 +108,12 @@ useEffect(() => {
     }
 
     const formatted = (data || []).map((item) => ({
-      id: item.id,
-      name: item.name,
-      price: `₹${item.price}`,
-      stock: item.stock,
-      description:
-        item.description || "No description available",
-        product_code: item.product_code,
-      images: item.images || [],
-    }));
+  ...item,
+  price: `₹${item.price}`,
+  description:
+    item.description || "No description available",
+  images: item.images || [],
+}));
 
     setProducts(formatted);
   };
@@ -569,7 +566,15 @@ await emailjs.send(
     items: cart
       .map(
         (item) =>
-          `${item.name} x${item.quantity}`
+          `${item.name}${
+  item.selectedSize
+    ? ` (Size: ${item.selectedSize})`
+    : ""
+}${
+  item.selectedColor
+    ? ` | Color: ${item.selectedColor}`
+    : ""
+} x${item.quantity}`
       )
       .join(", "),
     total: getCartTotal(),
@@ -606,7 +611,15 @@ showToast(
   const message = ` Hi, I want to place an order.%0A%0A${cart
     .map(
       (item) =>
-        `${item.name} (${item.product_code})x${item.quantity} - ₹${
+        `${item.name}${
+  item.selectedSize
+    ? ` (Size: ${item.selectedSize})`
+    : ""
+}${
+  item.selectedColor
+    ? ` | Color: ${item.selectedColor}`
+    : ""
+} (${item.product_code}) x${item.quantity} - ₹${
           parseInt(
             item.price.replace(
               "₹",
@@ -768,7 +781,7 @@ setSelectedColor("");
 {/* Trust Strip */}
 <div className="max-w-7xl mx-auto px-6 mt-4">
   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-white/80 backdrop-blur-xl rounded-3xl p-4 shadow-lg border border-white/40">
-    <div className="text-center text-sm font-medium">🚚 Free Delivery</div>
+    <div className="text-center text-sm font-medium">🚚 All India Delivery</div>
     <div className="text-center text-sm font-medium">🔒 Secure Payment</div>
     <div className="text-center text-sm font-medium">💬 WhatsApp Support</div>
     <div className="text-center text-sm font-medium">✨ Premium Quality</div>
@@ -833,6 +846,58 @@ setSelectedColor("");
             <p className="mt-4 text-gray-700">
               Description: {selectedProduct.description}
             </p>
+
+            <div className="mt-5 space-y-5">
+  {selectedProduct.sizes?.length > 0 && (
+    <div>
+      <p className="font-semibold mb-2">
+        Select Size
+      </p>
+
+      <div className="flex gap-2 flex-wrap">
+        {selectedProduct.sizes.map((size) => (
+          <button
+            key={size}
+            onClick={() => setSelectedSize(size)}
+            className={`px-4 py-2 rounded-xl border ${
+              selectedSize === size
+                ? "bg-black text-white"
+                : "bg-white text-black"
+            }`}
+          >
+            {size}
+          </button>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {selectedProduct.colors?.length > 0 && (
+    <div>
+      <p className="font-semibold mb-2">
+        Select Color
+      </p>
+
+      <div className="flex gap-2 flex-wrap">
+        {selectedProduct.colors.map((color) => (
+          <button
+            key={color}
+            onClick={() =>
+              setSelectedColor(color)
+            }
+            className={`px-4 py-2 rounded-xl border ${
+              selectedColor === color
+                ? "bg-black text-white"
+                : "bg-white text-black"
+            }`}
+          >
+            {color}
+          </button>
+        ))}
+      </div>
+    </div>
+  )}
+</div>
 
             {selectedProduct.video_url && (
   <div className="mt-6">
@@ -925,7 +990,11 @@ setSelectedColor("");
 
             <button
   onClick={() =>
-    addToCart(selectedProduct)
+    addToCart({
+  ...selectedProduct,
+  selectedSize,
+  selectedColor,
+})
   }
   disabled={
     selectedProduct.stock -
@@ -1023,6 +1092,14 @@ setSelectedColor("");
               >
 <div>
   <p>{item.name}</p>
+  {(item.selectedSize || item.selectedColor) && (
+  <p className="text-sm text-gray-500">
+    {item.selectedSize &&
+      `Size: ${item.selectedSize}`}
+    {item.selectedColor &&
+      ` | Color: ${item.selectedColor}`}
+  </p>
+)}
 
   <div className="flex items-center gap-3 mt-2">
     <button
@@ -1348,7 +1425,7 @@ setSelectedColor("");
             className="w-full h-[220px] md:h-[320px] object-cover group-hover:scale-105 transition-all duration-700"
           >
             <source
-              src="/duppatas-banner.mp4"
+              src="https://nwbcsnlulsajvbumqzen.supabase.co/storage/v1/object/public/product-videos/duppat.mp4"
               type="video/mp4"
             />
           </video>
