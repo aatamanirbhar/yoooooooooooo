@@ -10,6 +10,7 @@ export default function RadharaniCollection() {
 
   const [showSuccess, setShowSuccess] =
   useState(false);
+  const [reviews, setReviews] = useState([]);
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
   const [toastMessage, setToastMessage] = useState("");
@@ -49,6 +50,7 @@ useEffect(() => {
 
   useEffect(() => {
     fetchProducts();
+    fetchReviews();
 
 
     const channel = supabase
@@ -107,6 +109,9 @@ useEffect(() => {
       return;
     }
 
+
+
+
     const formatted = (data || []).map((item) => ({
   ...item,
   price: `₹${item.price}`,
@@ -117,6 +122,23 @@ useEffect(() => {
 
     setProducts(formatted);
   };
+
+
+  const fetchReviews = async () => {
+  const { data, error } = await supabase
+    .from("reviews")
+    .select("*")
+    .order("created_at", {
+      ascending: false,
+    });
+
+  if (error) {
+    console.log("Review error:", error);
+    return;
+  }
+
+  setReviews(data || []);
+};
 
   const getImageUrl = (path) => {
     return supabase.storage
@@ -697,11 +719,11 @@ localStorage.removeItem("cart");
       {/* Premium Sale Strip */}
 <div className="sticky top-0 z-[60] bg-black text-white overflow-hidden">
   <div className="whitespace-nowrap py-2 text-xs md:text-sm tracking-[0.25em] uppercase animate-scroll-strip">
-    <span className="mx-8">Festive Sale Live</span>
+    {/* <span className="mx-8">Festive Sale Live</span> */}
     <span className="mx-8">Free Shipping Above ₹999</span>
     <span className="mx-8">Premium At Shop Prices</span>
     <span className="mx-8">WhatsApp Support Available</span>
-    <span className="mx-8">New Bridal Collection Live</span>
+    <span className="mx-8">Summer SALE Live</span>
   </div>
 </div>
 
@@ -796,6 +818,28 @@ setSelectedColor("");
   </div>
 </div>
 
+
+{/* <div className="max-w-7xl mx-auto px-6 mt-6">
+  <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-4 shadow-lg border border-white/40 flex flex-col sm:flex-row justify-between items-center gap-3">
+    <div className="flex items-center gap-2 text-lg">
+      <span className="text-amber-500">
+        ★★★★★
+      </span>
+      <span className="font-semibold">
+        4.9/5 Customer Rating
+      </span>
+    </div>
+
+    <p className="text-sm text-gray-600">
+      Trusted by <span className="font-semibold">2,000+ happy customers</span>
+    </p>
+
+    <p className="text-sm text-emerald-600 font-medium">
+      150+ orders placed this week
+    </p>
+  </div>
+</div> */}
+
 {/* Trust Strip */}
 <div className="max-w-7xl mx-auto px-6 mt-4">
   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-white/80 backdrop-blur-xl rounded-3xl p-4 shadow-lg border border-white/40">
@@ -805,6 +849,33 @@ setSelectedColor("");
     <div className="text-center text-sm font-medium">✨ Premium Quality</div>
   </div>
 </div>
+
+
+<div className="max-w-7xl mx-auto px-6 mt-6 overflow-hidden">
+  <div className="flex gap-4 w-max animate-scroll">
+    {[...reviews, ...reviews].map(
+      (review, index) => (
+        <div
+          key={`${review.id}-${index}`}
+          className="min-w-[280px] bg-white rounded-3xl shadow-lg p-5 border"
+        >
+          <p className="text-amber-500 text-lg">
+            {"★".repeat(review.rating)}
+          </p>
+
+          <p className="mt-2 text-gray-700">
+            {review.review_text}
+          </p>
+
+          <p className="mt-3 font-semibold text-sm">
+            — {review.customer_name}
+          </p>
+        </div>
+      )
+    )}
+  </div>
+</div>
+
 
       {/* Details Modal */}
       {showDetails && selectedProduct && (
@@ -1424,7 +1495,7 @@ setSelectedColor("");
          <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
       </div>
      <a
-  href="https://wa.me/919509295882"
+  href="https://wa.me/919509295882?text=Hi%20I%20need%20help%20with%20your%20collection"
   target="_blank"
   rel="noopener noreferrer"
   className="fixed bottom-6 right-6 z-[100] bg-emerald-600 text-white px-5 py-4 rounded-full shadow-2xl hover:scale-105 transition-all duration-300 flex items-center gap-2"

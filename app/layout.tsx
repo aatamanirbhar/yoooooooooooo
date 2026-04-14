@@ -27,7 +27,65 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+  {children}
+
+  <footer className="mt-16 border-t border-gray-200 bg-white">
+    <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div>
+        <h2 className="text-xl font-semibold">
+          राधारानी स्टोर
+        </h2>
+        <p className="text-sm text-gray-600 mt-3">
+          Premium quality ethnic wear at shop prices.
+        </p>
+      </div>
+
+      <div>
+        <h3 className="font-semibold mb-3">
+          Quick Links
+        </h3>
+        <p className="text-sm text-gray-600">
+          Home
+        </p>
+        <p className="text-sm text-gray-600">
+          Categories
+        </p>
+        <p className="text-sm text-gray-600">
+          Cart
+        </p>
+      </div>
+
+      <div>
+        <h3 className="font-semibold mb-3">
+          Support
+        </h3>
+        <p className="text-sm text-gray-600">
+          WhatsApp Support
+        </p>
+        <p className="text-sm text-gray-600">
+          Secure Payments
+        </p>
+        <p className="text-sm text-gray-600">
+          All India Delivery
+        </p>
+      </div>
+
+      <div>
+        <h3 className="font-semibold mb-3">
+          Contact
+        </h3>
+        <p className="text-sm text-gray-600">
+          +91 9509295882
+        </p>
+      </div>
+    </div>
+
+    <div className="border-t border-gray-100 py-4 text-center text-sm text-gray-500">
+      © 2026 Radharani Collection
+    </div>
+  </footer>
+</body>
     </html>
   );
 }
