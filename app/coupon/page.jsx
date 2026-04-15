@@ -14,8 +14,8 @@ export default function DataPage() {
 
   const [message, setMessage] = useState("");
 
-  const whatsappInviteLink =
-    "https://chat.whatsapp.com/IHJ45efC2RuD6MSbhMkStE?mode=gi_t";
+  // const whatsappInviteLink =
+  //   "https://chat.whatsapp.com/IHJ45efC2RuD6MSbhMkStE?mode=gi_t";
 
   const handleChange = (e) => {
     setForm({
