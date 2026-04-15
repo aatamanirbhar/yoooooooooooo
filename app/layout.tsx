@@ -95,7 +95,7 @@ export default function RootLayout({
           Contact
         </h3>
         <p className="text-sm text-gray-600">
-          +91 9509295882
+          radharanicollectionstore@gmail.com
         </p>
       </div>
     </div>
