@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"; import { supabase } from "../../lib/supabase";
 
 export default function AdminPage() { const [form, setForm] = useState({ name: "", price: "", stock: "", description: "",category: "", product_code: "", images: "", sizes: "",video_url: "",
-  colors: "",});
+  colors: "",custom_tag: "",});
 
   const [couponForm, setCouponForm] = useState({
   code: "",
@@ -68,7 +68,7 @@ const deleteCouponByName = async (code) => {
   fetchCoupons();
 };
 
-const addProduct = async () => { const { error } = await supabase.from("inventory").insert([ { name: form.name, price: Number(form.price), stock: Number(form.stock), category: form.category,description: form.description, product_code: form.product_code, images: form.images
+const addProduct = async () => { const { error } = await supabase.from("inventory").insert([ { name: form.name, price: Number(form.price), stock: Number(form.stock), category: form.category,description: form.description, product_code: form.product_code,custom_tag: form.custom_tag, images: form.images
   ? form.images.split(",").map((img) => img.trim()).filter(Boolean)
   : [],
 sizes: form.sizes
@@ -95,6 +95,7 @@ setForm({
   sizes: "",
 colors: "",
 video_url: "",
+custom_tag: "",
 });
 
 };
@@ -300,6 +301,17 @@ return ( <div className="min-h-screen p-8 max-w-2xl mx-auto space-y-6"> <h1 clas
     </div>
 
     <input value={form.images} readOnly placeholder="Uploaded images" className="w-full border p-3 rounded-xl" />
+    <input
+  placeholder="Custom Tag"
+  value={form.custom_tag}
+  onChange={(e) =>
+    setForm({
+      ...form,
+      custom_tag: e.target.value,
+    })
+  }
+  className="w-full border p-3 rounded-xl"
+/>
 
     <button onClick={addProduct} className="w-full bg-black text-white py-3 rounded-xl">Add Product</button>
   </div>

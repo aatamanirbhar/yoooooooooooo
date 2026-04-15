@@ -1495,7 +1495,7 @@ setSelectedColor("");
     </div>
   )}
 
-
+<div className="realtive">
               {product.images?.[0] && (
                 <Image
                   src={getImageUrl(
@@ -1506,7 +1506,17 @@ setSelectedColor("");
                   height={500}
                   className="w-full h-80 object-cover transition-transform duration-700 group-hover:scale-105"
                 />
+
+
               )}
+
+              {product.custom_tag && (
+  <div className="absolute top-3 left-3 z-10 bg-black/80 text-white text-xs px-3 py-1 rounded-full shadow-lg">
+    {product.custom_tag}
+  </div>
+)}</div>
+
+
 
               <div className="p-6">
                 <h2 className="text-xl font-semibold tracking-wide">
