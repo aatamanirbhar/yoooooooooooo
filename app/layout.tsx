@@ -60,15 +60,13 @@ export default function RootLayout({
           Categories
         </p>
 </a>
-      <a
-  href={`${typeof window !== "undefined" ? window.location.pathname : ""}?cart=open`}
->
+  
 
   <p className="text-sm text-gray-600">
           Cart
         </p>
   
-</a>
+
       
       </div>
 
