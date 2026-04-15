@@ -840,7 +840,7 @@ localStorage.removeItem("cart");
   <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-5">
     <div>
       <h1 className="text-3xl md:text-5xl font-semibold tracking-wide text-black leading-tight">
-        राधारानी स्टोर
+        राधारानी स्टोर hai
       </h1>
 
       <p className="text-xs md:text-sm text-gray-500 mt-1 tracking-[0.35em] uppercase font-medium">
