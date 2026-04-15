@@ -1,14 +1,14 @@
 "use client";
 
 import emailjs from "@emailjs/browser";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabase";
 import Image from "next/image";
 
 export default function CategoryPage() {
   const { slug } = useParams();
-  const searchParams = useSearchParams();
+ 
 
   const [showSuccess, setShowSuccess] = useState(false);
 const [couponCode, setCouponCode] = useState("");
@@ -76,11 +76,7 @@ const applyCoupon = async () => {
   showToast("Coupon applied");
 };
 
-  useEffect(() => {
-  if (searchParams.get("cart") === "open") {
-    setShowCart(true);
-  }
-}, [searchParams]);
+
 
   useEffect(() => {
     fetchProducts();

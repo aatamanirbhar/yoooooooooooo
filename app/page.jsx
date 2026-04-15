@@ -4,9 +4,9 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { supabase } from "../lib/supabase";
 
-import { useSearchParams } from "next/navigation";
+
 export default function RadharaniCollection() {
-  const searchParams = useSearchParams();
+ 
 
   const [selectedCategory, setSelectedCategory] = useState("");
 
@@ -78,11 +78,7 @@ const [selectedColor, setSelectedColor] = useState("");
 };
 
   
-  useEffect(() => {
-  if (searchParams.get("cart") === "open") {
-    setShowCart(true);
-  }
-}, [searchParams]);
+
 
 useEffect(() => {
   const savedCart =
