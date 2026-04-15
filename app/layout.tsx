@@ -62,10 +62,7 @@ export default function RootLayout({
 </a>
   
 
-  <p className="text-sm text-gray-600">
-          Cart
-        </p>
-  
+
 
       
       </div>
