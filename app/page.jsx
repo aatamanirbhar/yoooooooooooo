@@ -829,7 +829,7 @@ localStorage.removeItem("cart");
   <div className="whitespace-nowrap py-2 text-xs md:text-sm tracking-[0.25em] uppercase animate-scroll-strip">
      <span className="mx-8">Follow us on socials to get 10% Off Coupon</span> 
     <span className="mx-8">Free Shipping Above ₹999</span>
-    <span className="mx-8">Premium At Shop Prices</span>
+    <span className="mx-8">Premium At Shop Wale Prices</span>
     <span className="mx-8">WhatsApp Support Available</span>
     <span className="mx-8">Summer SALE Live</span>
   </div>
