@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react"; import { supabase } from "../../lib/supabase";
+import { useState, useEffect } from "react"; import { supabase } from "../../lib/supabase";
 
 export default function AdminPage() { const [form, setForm] = useState({ name: "", price: "", stock: "", description: "",category: "", product_code: "", images: "", sizes: "",video_url: "",
   colors: "",});
