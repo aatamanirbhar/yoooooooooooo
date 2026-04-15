@@ -849,7 +849,7 @@ localStorage.removeItem("cart");
     </div>
   <div className="flex items-center gap-3">
       <a
-        href="/data"
+        href="/coupon"
         className="bg-white border border-black text-black px-4 py-3 rounded-full shadow-md hover:bg-black hover:text-white transition-all duration-300 text-sm font-semibold"
       >
         🎁 Get 10% OFF
@@ -1645,111 +1645,85 @@ setSelectedColor("");
         </div>
       </div>
 
-      {/* T-Shirt Promo Banner Section */}
-{/* <div className="max-w-7xl mx-auto px-6 pb-10">
-  <div
-    onClick={() => {
-      window.location.href = "/category/tshirt";
-    }}
-    className="relative rounded-[32px] overflow-hidden shadow-2xl cursor-pointer group"
-  >
+   
 
 
+{/* Shorts + T-Shirt Side by Side Banners */}
+<div className="max-w-7xl mx-auto px-6 pb-10">
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-
-
-
-    
-    <video
-      autoPlay
-      loop
-      muted
-      playsInline
-      className="w-full h-[220px] md:h-[320px] object-cover group-hover:scale-105 transition-all duration-700"
+    {/* Men's Shorts Banner */}
+    <div
+      onClick={() => {
+        window.location.href = "/category/mens-shorts";
+      }}
+      className="relative rounded-[28px] overflow-hidden shadow-2xl cursor-pointer group"
     >
-      <source
-        src="/tshirt-banner.mp4"
-        type="video/mp4"
-      />
-    </video>
-    
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="w-full h-[400px] md:h-[520px] object-cover group-hover:scale-105 transition-all duration-700"
+      >
+        <source src="https://nwbcsnlulsajvbumqzen.supabase.co/storage/v1/object/public/product-videos/menshorts.mp4" />
+      </video>
 
-    <div className="absolute inset-0 bg-black/35 flex items-center justify-center">
-      <div className="text-center text-white px-6">
-        <p className="text-xs tracking-[0.35em] uppercase mb-3">
-          New Drop
-        </p>
+      <div className="absolute inset-0 bg-black/25 group-hover:bg-black/15 transition-all duration-500"></div>
 
-        <h2 className="text-3xl md:text-5xl font-semibold">
-          T-Shirts @ ₹150
-        </h2>
-
-        <p className="mt-3 text-sm md:text-base text-white/90">
-          Tap to explore the collection
-        </p>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="text-center text-white px-4">
+          <p className="text-xs tracking-[0.3em] uppercase mb-2">
+            New Drop
+          </p>
+          <h2 className="text-2xl md:text-4xl font-semibold">
+            Men's Shorts
+          </h2>
+          <p className="mt-2 text-sm text-white/90">
+            Stylish & Comfortable
+          </p>
+        </div>
       </div>
     </div>
-  </div>
-</div> */}
 
-
-
-
-{/* T-Shirt Promo Banner */}
-<div className="max-w-7xl mx-auto px-6 pb-10">
-  <div
-    onClick={() => {
-      window.location.href = "/category/tshirt";
-    }}
-    className="relative rounded-[32px] overflow-hidden shadow-2xl cursor-pointer group"
+    {/* T-Shirt Banner */}
+    <div
+      onClick={() => {
+        window.location.href = "/category/tshirt";
+      }}
+      className="relative rounded-[28px] overflow-hidden shadow-2xl cursor-pointer group"
+    >
+    <video
+    autoPlay
+    loop
+    muted
+    playsInline
+    className="w-full h-[400px] md:h-[520px] object-cover group-hover:scale-105 transition-all duration-700"
   >
-    <img
-      src="/ChatGPT Image Apr 13, 2026, 03_08_29 AM.png"
-      alt="Men and Women T-Shirts"
-      className="w-full h-[220px] md:h-[320px] object-cover group-hover:scale-105 transition-all duration-700"
-    />
+    <source src="https://nwbcsnlulsajvbumqzen.supabase.co/storage/v1/object/public/product-videos/tshirt.mp4" type="video/mp4" />
+  </video>
 
-    {/* Optional stylish dark overlay */}
-    <div className="absolute inset-0 bg-black/10 group-hover:bg-black/5 transition-all duration-500"></div>
+      <div className="absolute inset-0 bg-black/10 group-hover:bg-black/5 transition-all duration-500"></div>
+
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="text-center text-white px-4">
+          <p className="text-xs tracking-[0.3em] uppercase mb-2">
+            Trending
+          </p>
+          <h2 className="text-2xl md:text-4xl font-semibold">
+            T-Shirts
+          </h2>
+          <p className="mt-2 text-sm text-white/90">
+            For Men & Women
+          </p>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
 
-{/* Men's Shorts Half Banner */}
-<div className="max-w-7xl mx-auto px-6 pb-10">
-  <div
-    onClick={() => {
-      window.location.href = "/category/mens-shorts";
-    }}
-    className="w-full md:w-1/2 relative rounded-[28px] overflow-hidden shadow-2xl cursor-pointer group"
-  >
-    <video
-      autoPlay
-      loop
-      muted
-      playsInline
-className="w-full h-[400px] md:h-[520px] object-cover group-hover:scale-105 transition-all duration-700"
-    >
-      <source src="/mens-shorts-banner.mp4" type="video/mp4" />
-    </video>
-
-    <div className="absolute inset-0 bg-black/25 group-hover:bg-black/15 transition-all duration-500"></div>
-
-    <div className="absolute inset-0 flex items-center justify-center">
-      <div className="text-center text-white px-4">
-        <p className="text-xs tracking-[0.3em] uppercase mb-2">
-          New Drop
-        </p>
-        <h2 className="text-2xl md:text-4xl font-semibold">
-          Men's Shorts
-        </h2>
-        <p className="mt-2 text-sm text-white/90">
-          Stylish & Comfortable
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
 
 {/* Shop by Category */}
 <div id="categories" className="max-w-7xl mx-auto px-6 py-12">
@@ -1765,22 +1739,22 @@ className="w-full h-[400px] md:h-[520px] object-cover group-hover:scale-105 tran
     {[
       {
         title: "Women",
-        video: "/women.mp4",
+        video: "https://nwbcsnlulsajvbumqzen.supabase.co/storage/v1/object/public/product-videos/woemn.mp4",
         slug: "women",
       },
-      {
-        title: "Men",
-        video: "/men.mp4",
-        slug: "men",
-      },
+      // {
+      //   title: "Men",
+      //   video: "/men.mp4",
+      //   slug: "men",
+      // },
       {
         title: "Kids Wear",
-        video: "/kids.mp4",
+        video: "https://nwbcsnlulsajvbumqzen.supabase.co/storage/v1/object/public/product-videos/kids.mp4",
         slug: "kids-wear",
       },
       {
         title: "Accessories",
-        video: "/accessories.mp4",
+        video: "https://nwbcsnlulsajvbumqzen.supabase.co/storage/v1/object/public/product-videos/accesories.mp4",
         slug: "accessories",
       },
     ].map((cat) => (
