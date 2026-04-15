@@ -851,7 +851,13 @@ localStorage.removeItem("cart");
         Premium At Shop Prices
       </p>
     </div>
-
+  <div className="flex items-center gap-3">
+      <a
+        href="/data"
+        className="bg-white border border-black text-black px-4 py-3 rounded-full shadow-md hover:bg-black hover:text-white transition-all duration-300 text-sm font-semibold"
+      >
+        🎁 Get 10% OFF
+      </a>
     <button
       onClick={handleCartClick}
       className="relative bg-black text-white px-6 py-3 rounded-full shadow-xl hover:scale-105 transition-all duration-300"
@@ -862,6 +868,7 @@ localStorage.removeItem("cart");
         {cart.length}
       </span>
     </button>
+    </div>
   </div>
 </div>
 
