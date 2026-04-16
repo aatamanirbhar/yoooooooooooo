@@ -888,12 +888,18 @@ localStorage.removeItem("cart");
           (product, index) => (
             <div
               key={`${product.id}-${index}`}
-              onClick={() => {
-                setSelectedSize("");
-setSelectedColor("");
-                setSelectedProduct(product);
-                setShowDetails(true);
-              }}
+        onClick={() => {
+  window.history.pushState(
+    { modal: "details" },
+    "",
+    window.location.href
+  );
+
+  setSelectedSize("");
+  setSelectedColor("");
+  setSelectedProduct(product);
+  setShowDetails(true);
+}}
               className="w-[260px] md:w-[320px] bg-white rounded-3xl shadow-lg overflow-hidden cursor-pointer hover:scale-[1.02] transition-all duration-300"
             >
               {product.images?.[0] && (
@@ -1449,7 +1455,7 @@ onClick={() =>
 
       {/* Product Cards */}
       <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 px-6 py-10">
-        {products.slice(5, 10).map((product) => {
+        {products.slice(5, 7).map((product) => {
         const cartQty =
   cart.find(
     (item) =>
