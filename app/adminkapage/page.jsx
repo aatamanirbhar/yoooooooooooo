@@ -5,6 +5,9 @@ import { useState, useEffect } from "react"; import { supabase } from "../../lib
 export default function AdminPage() { const [form, setForm] = useState({ name: "", price: "", stock: "", description: "",category: "", product_code: "", images: "", sizes: "",video_url: "",
   colors: "",custom_tag: "",});
 
+  const [editCode, setEditCode] = useState("");
+const [editForm, setEditForm] = useState(null);
+
   const [couponForm, setCouponForm] = useState({
   code: "",
   discount_type: "percent",
@@ -52,6 +55,68 @@ const addCoupon = async () => {
   });
 
   fetchCoupons();
+};
+
+
+const fetchProductForEdit = async () => {
+  if (!editCode.trim()) {
+    alert("Enter product code");
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from("inventory")
+    .select("*")
+    .eq("product_code", editCode.trim())
+    .single();
+
+  if (error || !data) {
+    alert("Product not found");
+    return;
+  }
+
+  setEditForm({
+    ...data,
+    images: (data.images || []).join(", "),
+    sizes: (data.sizes || []).join(", "),
+    colors: (data.colors || []).join(", "),
+  });
+};
+
+
+const updateProduct = async () => {
+  if (!editForm) return;
+
+  const { error } = await supabase
+    .from("inventory")
+    .update({
+      name: editForm.name,
+      price: Number(editForm.price),
+      stock: Number(editForm.stock),
+      description: editForm.description,
+      category: editForm.category,
+      video_url: editForm.video_url,
+      custom_tag: editForm.custom_tag,
+      images: editForm.images
+        ? editForm.images.split(",").map(i => i.trim())
+        : [],
+      sizes: editForm.sizes
+        ? editForm.sizes.split(",").map(s => s.trim())
+        : [],
+      colors: editForm.colors
+        ? editForm.colors.split(",").map(c => c.trim())
+        : [],
+    })
+    .eq("product_code", editCode);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  alert("Product updated");
+  setEditForm(null);
+  setEditCode("");
 };
 
 const deleteCouponByName = async (code) => {
@@ -332,6 +397,126 @@ return ( <div className="min-h-screen p-8 max-w-2xl mx-auto space-y-6"> <h1 clas
     </select>
     <button onClick={updateStockByCode} className="w-full bg-blue-600 text-white py-3 rounded-xl">Update Stock</button>
   </div>
+
+
+<div className="space-y-3 border p-4 rounded-2xl">
+  <h2 className="text-xl font-semibold">Edit Product</h2>
+
+  <input
+    placeholder="Enter Product Code"
+    value={editCode}
+    onChange={(e) => setEditCode(e.target.value)}
+    className="w-full border p-3 rounded-xl"
+  />
+
+  <button
+    onClick={fetchProductForEdit}
+    className="w-full bg-gray-800 text-white py-3 rounded-xl"
+  >
+    Load Product
+  </button>
+
+  {editForm && (
+    <>
+      <input
+        value={editForm.name}
+        onChange={(e) =>
+          setEditForm({ ...editForm, name: e.target.value })
+        }
+        className="w-full border p-3 rounded-xl"
+      />
+
+      <input
+        value={editForm.price}
+        onChange={(e) =>
+          setEditForm({ ...editForm, price: e.target.value })
+        }
+        className="w-full border p-3 rounded-xl"
+      />
+
+      <input
+        value={editForm.stock}
+        onChange={(e) =>
+          setEditForm({ ...editForm, stock: e.target.value })
+        }
+        className="w-full border p-3 rounded-xl"
+      />
+
+      <textarea
+        value={editForm.description}
+        onChange={(e) =>
+          setEditForm({
+            ...editForm,
+            description: e.target.value,
+          })
+        }
+        className="w-full border p-3 rounded-xl"
+      />
+
+      <input
+        value={editForm.images}
+        onChange={(e) =>
+          setEditForm({
+            ...editForm,
+            images: e.target.value,
+          })
+        }
+        className="w-full border p-3 rounded-xl"
+      />
+
+      <input
+        value={editForm.sizes}
+        onChange={(e) =>
+          setEditForm({
+            ...editForm,
+            sizes: e.target.value,
+          })
+        }
+        className="w-full border p-3 rounded-xl"
+      />
+
+      <input
+        value={editForm.colors}
+        onChange={(e) =>
+          setEditForm({
+            ...editForm,
+            colors: e.target.value,
+          })
+        }
+        className="w-full border p-3 rounded-xl"
+      />
+
+      <input
+        value={editForm.video_url || ""}
+        onChange={(e) =>
+          setEditForm({
+            ...editForm,
+            video_url: e.target.value,
+          })
+        }
+        className="w-full border p-3 rounded-xl"
+      />
+
+      <input
+        value={editForm.custom_tag || ""}
+        onChange={(e) =>
+          setEditForm({
+            ...editForm,
+            custom_tag: e.target.value,
+          })
+        }
+        className="w-full border p-3 rounded-xl"
+      />
+
+      <button
+        onClick={updateProduct}
+        className="w-full bg-green-600 text-white py-3 rounded-xl"
+      >
+        Update Product
+      </button>
+    </>
+  )}
+</div>
 
 
 <div className="mt-10 bg-white rounded-3xl p-6 shadow-lg">

@@ -1665,15 +1665,21 @@ setSelectedColor("");
       }}
       className="relative rounded-[28px] overflow-hidden shadow-2xl cursor-pointer group"
     >
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="w-full h-[400px] md:h-[520px] object-cover group-hover:scale-105 transition-all duration-700"
-      >
-        <source src="https://nwbcsnlulsajvbumqzen.supabase.co/storage/v1/object/public/product-videos/menshorts.mp4" />
-      </video>
+      <Image
+  src="/shorts-banner.jpeg"
+  alt="Men's Shorts"
+  width={800}
+  height={600}
+  className="w-full h-[220px] md:h-[320px] object-cover transition duration-500 group-hover:scale-105"
+/>
+
+<div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition duration-300" />
+
+<div className="absolute inset-0 flex items-center justify-center">
+  <p className="text-white text-sm md:text-base font-semibold">
+    Tap to explore collection →
+  </p>
+</div>
 
       <div className="absolute inset-0 bg-black/25 group-hover:bg-black/15 transition-all duration-500"></div>
 
@@ -1699,15 +1705,23 @@ setSelectedColor("");
       }}
       className="relative rounded-[28px] overflow-hidden shadow-2xl cursor-pointer group"
     >
-    <video
-    autoPlay
-    loop
-    muted
-    playsInline
-    className="w-full h-[400px] md:h-[520px] object-cover group-hover:scale-105 transition-all duration-700"
-  >
-    <source src="https://nwbcsnlulsajvbumqzen.supabase.co/storage/v1/object/public/product-videos/tshirt.mp4" type="video/mp4" />
-  </video>
+  <Image
+  src="/tshirt-banner.jpeg"
+  alt="T-Shirts"
+  width={800}
+  height={600}
+  className="w-full h-[220px] md:h-[320px] object-cover"
+/>
+
+{/* 🔥 OVERLAY */}
+<div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition duration-300" />
+
+{/* 🔥 TEXT */}
+<div className="absolute inset-0 flex items-center justify-center">
+  <p className="text-white text-sm md:text-base font-semibold tracking-wide">
+    Tap to explore collection
+  </p>
+</div>
 
       <div className="absolute inset-0 bg-black/10 group-hover:bg-black/5 transition-all duration-500"></div>
 
